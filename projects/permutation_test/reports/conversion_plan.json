@@ -1,0 +1,82 @@
+{
+  "backend_status": {
+    "implemented": true,
+    "reason": "MVP backend for NumPy-style simulation code.",
+    "selected_backend": "cupy",
+    "status": "implemented"
+  },
+  "changes": [
+    {
+      "original": "import numpy as np",
+      "reason": "CuPy provides a NumPy-compatible GPU array namespace.",
+      "replacement": "import cupy as cp",
+      "type": "import_mapping"
+    },
+    {
+      "original": "np.random.uniform",
+      "reason": "Supported MVP NumPy API mapped to CuPy.",
+      "replacement": "cp.random.uniform",
+      "type": "api_mapping"
+    },
+    {
+      "original": "np.array",
+      "reason": "Supported MVP NumPy API mapped to CuPy.",
+      "replacement": "cp.array",
+      "type": "api_mapping"
+    },
+    {
+      "original": "np.mean",
+      "reason": "Supported MVP NumPy API mapped to CuPy.",
+      "replacement": "cp.mean",
+      "type": "api_mapping"
+    }
+  ],
+  "detected_patterns": [
+    {
+      "name": "monte_carlo_independent_trials",
+      "parallelizable": true,
+      "reason": "Detected by static analysis."
+    }
+  ],
+  "equivalence_level": "statistical",
+  "gpu_suitability": {
+    "confidence": "medium",
+    "future_backend_candidates": [
+      "torch"
+    ],
+    "gpu_suitable": true,
+    "reasons": [
+      "The source code is NumPy-style, so CuPy is the safest MVP backend.",
+      "Detected NumPy random simulation calls.",
+      "Detected Python-level loops that may be GPU candidates after analysis.",
+      "Detected vectorized random sampling with an explicit size argument."
+    ],
+    "recommended_backend": "cupy",
+    "warnings": [
+      "Validation and benchmark execution are skipped in no-GPU MVP mode.",
+      "TorchBackend may be useful in the future but is not implemented in the MVP."
+    ]
+  },
+  "risks": [
+    "CPU and GPU random numbers will not match elementwise.",
+    "Floating point differences may occur."
+  ],
+  "source_file": "examples\\permutation_test\\input_cpu.py",
+  "summary": "Convert NumPy simulation code to CuPy where safe.",
+  "target_backend": "cupy",
+  "unsupported_features": [
+    {
+      "action": "Keep this loop on CPU or rewrite it with an explicit parallel strategy.",
+      "category": "sequential_dependency",
+      "code": "count augmented assignment",
+      "reason": "Detected a sequential dependency loop that may not be safely parallelizable."
+    },
+    {
+      "action": "Leave this call unchanged or add a supported mapping with tests.",
+      "category": "unsupported_numpy_api",
+      "code": "np.argsort",
+      "reason": "NumPy API is not in the MVP supported mapping table."
+    }
+  ],
+  "validation_strategy": "stochastic"
+}

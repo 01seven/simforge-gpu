@@ -1,0 +1,52 @@
+{
+  "convertible_regions": [
+    {
+      "line_end": 12,
+      "line_start": 9,
+      "strategy": "batch_vectorization",
+      "type": "for_loop"
+    }
+  ],
+  "gpu_suitability": {
+    "confidence": "medium",
+    "future_backend_candidates": [
+      "torch"
+    ],
+    "gpu_suitable": true,
+    "reasons": [
+      "The source code is NumPy-style, so CuPy is the safest MVP backend.",
+      "Detected NumPy random simulation calls.",
+      "Detected Python-level loops that may be GPU candidates after analysis.",
+      "Detected vectorized random sampling with an explicit size argument."
+    ],
+    "recommended_backend": "cupy",
+    "warnings": [
+      "Validation and benchmark execution are skipped in no-GPU MVP mode.",
+      "TorchBackend may be useful in the future but is not implemented in the MVP."
+    ]
+  },
+  "imports": [
+    "numpy"
+  ],
+  "language": "python",
+  "outputs": [
+    "data",
+    "estimates",
+    "indices",
+    "selected"
+  ],
+  "patterns": [
+    "monte_carlo_independent_trials"
+  ],
+  "random_calls": [
+    "np.random.uniform"
+  ],
+  "unsupported_features": [
+    {
+      "action": "Collect results with array operations or keep this loop on CPU.",
+      "category": "side_effect_loop",
+      "code": "estimates.append(...)",
+      "reason": "Detected a side-effect-heavy loop that mutates Python containers."
+    }
+  ]
+}

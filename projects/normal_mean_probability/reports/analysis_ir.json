@@ -1,0 +1,34 @@
+{
+  "convertible_regions": [],
+  "gpu_suitability": {
+    "confidence": "medium",
+    "future_backend_candidates": [
+      "torch"
+    ],
+    "gpu_suitable": true,
+    "reasons": [
+      "The source code is NumPy-style, so CuPy is the safest MVP backend.",
+      "Detected NumPy random simulation calls.",
+      "Detected vectorized random sampling with an explicit size argument."
+    ],
+    "recommended_backend": "cupy",
+    "warnings": [
+      "Validation and benchmark execution are skipped in no-GPU MVP mode.",
+      "TorchBackend may be useful in the future but is not implemented in the MVP."
+    ]
+  },
+  "imports": [
+    "numpy"
+  ],
+  "language": "python",
+  "outputs": [
+    "draws"
+  ],
+  "patterns": [
+    "normal_mean_probability"
+  ],
+  "random_calls": [
+    "np.random.normal"
+  ],
+  "unsupported_features": []
+}
