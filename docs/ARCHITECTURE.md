@@ -1,11 +1,11 @@
-# Architecture
+﻿# Architecture
 
 ## Two-Layer Design
 
 ### Agent Workflow Layer
 
 The Agent Workflow Layer constrains AI coding agents. It lives in files such as
-`AGENTS.md` and `skills/sim2gpu/SKILL.md`.
+`AGENTS.md` and `skills/simforge_gpu/SKILL.md`.
 
 It defines:
 

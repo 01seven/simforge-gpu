@@ -5,7 +5,7 @@ import site
 
 import pytest
 
-from sim2gpu.cli import main
+from simforge_gpu.cli import main
 
 
 pytestmark = pytest.mark.gpu

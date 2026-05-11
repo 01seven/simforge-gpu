@@ -1,4 +1,4 @@
-from sim2gpu.analyzers.unsupported_detector import detect_unsupported
+from simforge_gpu.analyzers.unsupported_detector import detect_unsupported
 
 
 def test_detect_unsupported_flags_out_of_scope_code_and_backends():

@@ -1,4 +1,4 @@
-"""Command-line interface for the sim2gpu MVP."""
+"""Command-line interface for the SimForge GPU MVP."""
 
 from __future__ import annotations
 
@@ -7,9 +7,9 @@ import json
 import sys
 from collections.abc import Sequence
 
-from sim2gpu.backends.cupy import SUPPORTED_PATTERNS
-from sim2gpu.backends.registry import get_backend, list_backends
-from sim2gpu.pipeline import (
+from simforge_gpu.backends.cupy import SUPPORTED_PATTERNS
+from simforge_gpu.backends.registry import get_backend, list_backends
+from simforge_gpu.pipeline import (
     analyze_file,
     benchmark_files,
     check_project_artifacts,
@@ -28,7 +28,7 @@ from sim2gpu.pipeline import (
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="sim2gpu")
+    parser = argparse.ArgumentParser(prog="simforge")
     subparsers = parser.add_subparsers(dest="command")
 
     analyze = subparsers.add_parser("analyze", help="Analyze a Python simulation file.")
@@ -107,7 +107,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 def _print_skeleton(command: str) -> int:
     print(
-        f"sim2gpu {command} skeleton is declared but not implemented yet.",
+        f"simforge {command} skeleton is declared but not implemented yet.",
         file=sys.stderr,
     )
     return 2

@@ -1,4 +1,4 @@
-# sim2gpu MVP Task Breakdown
+# SimForge GPU MVP Task Breakdown
 
 Each task must be small enough to implement and test independently. Phase 1 must
 not require a real GPU, real LLM API, or real benchmark data.
@@ -35,8 +35,8 @@ Create minimal Python package files.
 
 Acceptance criteria:
 
-- `sim2gpu/__init__.py` exists.
-- `sim2gpu/cli.py` exists as a placeholder only.
+- `simforge_gpu/__init__.py` exists.
+- `simforge_gpu/cli.py` exists as a placeholder only.
 - Importing the package does not require CuPy, CUDA, or an LLM client.
 
 ## [x] Task 4: CLI Skeleton
@@ -174,11 +174,11 @@ through the CLI.
 
 Acceptance criteria:
 
-- `sim2gpu analyze examples/monte_carlo_pi/input_cpu.py` writes
+- `simforge analyze examples/monte_carlo_pi/input_cpu.py` writes
   `analysis_ir.json`.
-- `sim2gpu convert examples/monte_carlo_pi/input_cpu.py --target cupy` writes a
+- `simforge convert examples/monte_carlo_pi/input_cpu.py --target cupy` writes a
   generated CuPy file and all MVP reports.
-- `sim2gpu convert examples/monte_carlo_pi/input_cpu.py --target torch` writes an
+- `simforge convert examples/monte_carlo_pi/input_cpu.py --target torch` writes an
   unsupported report and does not generate torch code.
 - `python -m pytest` passes in a no-GPU environment.
 
@@ -200,7 +200,7 @@ Add a CI-friendly artifact completeness command.
 
 Acceptance criteria:
 
-- `sim2gpu check-artifacts <project_dir>` returns success for complete projects.
+- `simforge check-artifacts <project_dir>` returns success for complete projects.
 - Missing required reports return exit code 1.
 - `--json` emits structured status.
 - The command does not execute GPU code.
@@ -212,7 +212,7 @@ available.
 
 Acceptance criteria:
 
-- `sim2gpu validate original.py generated_gpu.py` executes CPU/GPU scripts when
+- `simforge validate original.py generated_gpu.py` executes CPU/GPU scripts when
   CuPy kernel execution is available.
 - Missing or disabled GPU produces `SKIPPED`, not a crash.
 - Monte Carlo pi validation uses stochastic tolerance.
@@ -224,10 +224,10 @@ Measure CPU and GPU runtime only when CuPy/CUDA execution is available.
 
 Acceptance criteria:
 
-- `sim2gpu benchmark original.py generated_gpu.py` writes measured runtime and
+- `simforge benchmark original.py generated_gpu.py` writes measured runtime and
   speedup only after real execution.
 - Missing or disabled GPU produces `SKIPPED`.
-- `sim2gpu convert --validate --benchmark` can update reports in one command.
+- `simforge convert --validate --benchmark` can update reports in one command.
 - GPU tests cover the benchmark path.
 
 ## [x] Task 33: Configurable Scalar GPU Validation
@@ -236,7 +236,7 @@ Add user-tunable scalar validation tolerance.
 
 Acceptance criteria:
 
-- `sim2gpu validate original.py generated_gpu.py --tolerance <float>` is
+- `simforge validate original.py generated_gpu.py --tolerance <float>` is
   accepted.
 - Reports include the configured tolerance for passed, failed, and skipped
   validation.
@@ -248,7 +248,7 @@ Add repeat and warmup controls to benchmark execution.
 
 Acceptance criteria:
 
-- `sim2gpu benchmark original.py generated_gpu.py --repeat <n> --warmup <n>` is
+- `simforge benchmark original.py generated_gpu.py --repeat <n> --warmup <n>` is
   accepted.
 - Reports include repeat count, warmup count, median runtime, min runtime, mean
   runtime, and speedup after real execution.
@@ -277,7 +277,7 @@ Acceptance criteria:
   when the generated file is under `generated/`.
 - `convert --validate --benchmark` writes the same structured run artifacts.
 - Real benchmark JSON includes raw repeated CPU/GPU timing samples.
-- `sim2gpu validate ... --repeat <n>` records repeated scalar validation
+- `simforge validate ... --repeat <n>` records repeated scalar validation
   differences and summary statistics.
 - no-GPU skipped validation and benchmark runs still write structured artifacts
   with clear skip reasons.
@@ -321,15 +321,15 @@ Add small release-readiness commands without expanding backend scope.
 
 Acceptance criteria:
 
-- `sim2gpu convert <input.py> --target cupy --dry-run` writes planning reports
+- `simforge convert <input.py> --target cupy --dry-run` writes planning reports
   without generated GPU code.
 - Unsupported features include stable categories such as
   `backend_not_implemented`, `unsupported_numpy_api`, `pandas_pipeline`,
   `plotting`, `file_io`, `dynamic_execution`, `side_effect_loop`, and
   `sequential_dependency`.
-- `sim2gpu report <project_dir>` prints a user-facing summary with overall
+- `simforge report <project_dir>` prints a user-facing summary with overall
   status and recommended next step.
-- `sim2gpu run-demo monte_carlo_pi` runs the included demo workflow and remains
+- `simforge run-demo monte_carlo_pi` runs the included demo workflow and remains
   no-GPU-safe.
 - README and demo docs include a 60-second release path.
 
@@ -343,7 +343,7 @@ Read a `conversion_plan.json` file and render a human-readable explanation.
 
 Acceptance criteria:
 
-- `sim2gpu explain projects/monte_carlo_pi/reports/conversion_plan.json` prints
+- `simforge explain projects/monte_carlo_pi/reports/conversion_plan.json` prints
   an explanation.
 - `--output explanation_report.md` writes the report.
 - No GPU or LLM API is required.
@@ -355,7 +355,7 @@ Provide a safe validation command for no-GPU environments.
 
 Acceptance criteria:
 
-- `sim2gpu validate original.py generated_gpu.py` writes a validation report.
+- `simforge validate original.py generated_gpu.py` writes a validation report.
 - The report is explicitly `SKIPPED` in no-GPU MVP mode.
 - The command does not execute generated GPU code.
 - Tests cover skipped validation output.
@@ -366,7 +366,7 @@ Provide a safe benchmark command for no-GPU environments.
 
 Acceptance criteria:
 
-- `sim2gpu benchmark original.py generated_gpu.py` writes a benchmark report.
+- `simforge benchmark original.py generated_gpu.py` writes a benchmark report.
 - The report is explicitly `SKIPPED` in no-GPU MVP mode.
 - The report does not contain fake speedup values.
 - Tests cover skipped benchmark output.
@@ -377,7 +377,7 @@ Copy an included example into a project workspace.
 
 Acceptance criteria:
 
-- `sim2gpu init-example <name>` supports all first-batch examples.
+- `simforge init-example <name>` supports all first-batch examples.
 - Output goes to `projects/examples/<name>` by default.
 - Tests cover copying a known example.
 
@@ -410,7 +410,7 @@ Summarize generated project artifacts in a terminal-friendly table.
 
 Acceptance criteria:
 
-- `sim2gpu demo-status` scans `projects/` by default.
+- `simforge demo-status` scans `projects/` by default.
 - The summary includes backend, backend status, generated-file presence,
   unsupported count, validation status, and benchmark status.
 - The command is no-GPU and report-driven; it does not execute generated code.
@@ -422,7 +422,7 @@ Inspect one generated project in detail.
 
 Acceptance criteria:
 
-- `sim2gpu inspect-project projects/<name>` prints artifact paths, backend
+- `simforge inspect-project projects/<name>` prints artifact paths, backend
   status, unsupported entries, validation status, benchmark status, and next
   steps.
 - The command is no-GPU and report-driven; it does not execute generated code.
@@ -447,7 +447,7 @@ Add a no-GPU-safe environment inspection command.
 
 Acceptance criteria:
 
-- `sim2gpu doctor` prints Python/package status, backend status, optional CuPy
+- `simforge doctor` prints Python/package status, backend status, optional CuPy
   availability, and workspace checks.
 - The command does not import CuPy directly or require CUDA.
 - Tests cover report content and CLI output.
@@ -458,9 +458,9 @@ Add JSON output for no-GPU demo inspection commands.
 
 Acceptance criteria:
 
-- `sim2gpu doctor --json` prints structured environment status.
-- `sim2gpu demo-status --json` prints structured project summary rows.
-- `sim2gpu inspect-project <project_dir> --json` prints structured
+- `simforge doctor --json` prints structured environment status.
+- `simforge demo-status --json` prints structured project summary rows.
+- `simforge inspect-project <project_dir> --json` prints structured
   single-project status.
 - JSON output does not execute GPU code or import CuPy directly.
 - Tests cover the JSON CLI paths.
@@ -471,7 +471,7 @@ Add JSON output for backend and pattern discovery.
 
 Acceptance criteria:
 
-- `sim2gpu list-backends --json` prints structured backend status.
-- `sim2gpu list-patterns --json` prints supported pattern names.
+- `simforge list-backends --json` prints structured backend status.
+- `simforge list-patterns --json` prints supported pattern names.
 - JSON output does not import CuPy, call GPU code, or require an LLM.
 - Tests cover both discovery JSON paths.

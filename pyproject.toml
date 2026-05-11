@@ -3,14 +3,14 @@ requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "sim2gpu"
+name = "simforge-gpu"
 version = "0.1.0"
 description = "Correctness-first NumPy simulation to CuPy migration workflow."
 readme = "README.md"
 requires-python = ">=3.9"
 license = { file = "LICENSE" }
 authors = [
-  { name = "sim2gpu contributors" },
+  { name = "SimForge GPU contributors" },
 ]
 keywords = ["numpy", "cupy", "gpu", "simulation", "validation"]
 classifiers = [
@@ -35,10 +35,10 @@ gpu = [
 ]
 
 [project.scripts]
-sim2gpu = "sim2gpu.cli:main"
+simforge = "simforge_gpu.cli:main"
 
 [tool.setuptools.packages.find]
-include = ["sim2gpu*"]
+include = ["simforge_gpu*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

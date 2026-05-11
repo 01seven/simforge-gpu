@@ -65,7 +65,7 @@ class BackendInfo:
 
 
 class UnsupportedBackendError(ValueError):
-    """Raised when a backend name is not known to sim2gpu."""
+    """Raised when a backend name is not known to SimForge GPU."""
 
     def __init__(self, backend_name: str, supported_names: list[str]) -> None:
         self.backend_name = backend_name

@@ -1,12 +1,12 @@
 import json
 
-from sim2gpu.ir.schema import UnsupportedFeature
-from sim2gpu.reporters.markdown import (
+from simforge_gpu.ir.schema import UnsupportedFeature
+from simforge_gpu.reporters.markdown import (
     render_benchmark_report,
     render_explanation_report,
     render_unsupported_report,
 )
-from sim2gpu.reporters.json_report import stable_json
+from simforge_gpu.reporters.json_report import stable_json
 
 
 def test_stable_json_sorts_keys_and_indents():

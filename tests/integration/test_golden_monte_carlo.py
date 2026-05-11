@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from sim2gpu.cli import main
+from simforge_gpu.cli import main
 
 
 @pytest.mark.parametrize(

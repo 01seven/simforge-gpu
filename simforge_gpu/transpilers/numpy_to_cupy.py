@@ -1,12 +1,12 @@
-"""Conservative NumPy to CuPy API mapping helpers."""
+﻿"""Conservative NumPy to CuPy API mapping helpers."""
 
 from __future__ import annotations
 
 import ast
 from dataclasses import dataclass
 
-from sim2gpu.backends.cupy import SUPPORTED_NUMPY_APIS
-from sim2gpu.ir.schema import UnsupportedFeature
+from simforge_gpu.backends.cupy import SUPPORTED_NUMPY_APIS
+from simforge_gpu.ir.schema import UnsupportedFeature
 
 SUPPORTED_NUMPY_TO_CUPY = {
     api: api.replace("np.", "cp.", 1) for api in SUPPORTED_NUMPY_APIS

@@ -1,4 +1,4 @@
-# Example Status
+﻿# Example Status
 
 The MVP includes five first-batch examples. Each example has a CPU NumPy input,
 can be analyzed, and can produce CuPy-oriented generated source plus reports
@@ -45,7 +45,7 @@ the partial-conversion warnings.
 Use the CLI to summarize generated project artifacts:
 
 ```bash
-sim2gpu demo-status
+simforge demo-status
 ```
 
 The command reports backend status, generated file presence, unsupported count,
@@ -55,7 +55,7 @@ execute generated GPU code.
 For one project, use:
 
 ```bash
-sim2gpu inspect-project projects/permutation_test
+simforge inspect-project projects/permutation_test
 ```
 
 This prints artifact presence, unsupported entries, validation and benchmark
@@ -64,5 +64,5 @@ status, and suggested next steps.
 To verify artifact completeness:
 
 ```bash
-sim2gpu check-artifacts projects/monte_carlo_pi
+simforge check-artifacts projects/monte_carlo_pi
 ```

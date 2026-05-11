@@ -26,7 +26,7 @@ Skipped validation must include a reason.
 
 The GPU-capable MVP executes standalone validation when CuPy/CUDA kernel
 execution is available. If CuPy is missing, CUDA is unavailable, or
-`SIM2GPU_DISABLE_GPU=1` is set, validation remains `SKIPPED` with a clear
+`SIMFORGE_DISABLE_GPU=1` is set, validation remains `SKIPPED` with a clear
 reason.
 
 ## Stochastic Validation

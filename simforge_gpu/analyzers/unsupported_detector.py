@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import ast
 
-from sim2gpu.backends.cupy import SUPPORTED_NUMPY_APIS
-from sim2gpu.backends.registry import get_backend
-from sim2gpu.ir.schema import UnsupportedFeature
+from simforge_gpu.backends.cupy import SUPPORTED_NUMPY_APIS
+from simforge_gpu.backends.registry import get_backend
+from simforge_gpu.ir.schema import UnsupportedFeature
 
 
 def detect_unsupported(source: str, target_backend: str = "cupy") -> tuple[UnsupportedFeature, ...]:
@@ -42,7 +42,7 @@ def detect_unsupported(source: str, target_backend: str = "cupy") -> tuple[Unsup
                 UnsupportedFeature(
                     code="python source",
                     reason=f"Source could not be parsed: {exc.msg}.",
-                    action="Fix syntax before running sim2gpu.",
+                    action="Fix syntax before running simforge.",
                     category="syntax_error",
                 )
             ]

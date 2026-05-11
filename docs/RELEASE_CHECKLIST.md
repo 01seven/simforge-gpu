@@ -1,4 +1,4 @@
-# Release Checklist
+﻿# Release Checklist
 
 Use this checklist before publishing the MVP.
 
@@ -15,11 +15,11 @@ Use this checklist before publishing the MVP.
 python -m pip install -e .
 python -m pytest -q
 python -m pytest -m "not gpu" -q
-sim2gpu --help
-sim2gpu list-backends
-sim2gpu convert examples/monte_carlo_pi/input_cpu.py --target cupy --dry-run
-sim2gpu run-demo monte_carlo_pi
-sim2gpu report projects/monte_carlo_pi
+simforge --help
+simforge list-backends
+simforge convert examples/monte_carlo_pi/input_cpu.py --target cupy --dry-run
+simforge run-demo monte_carlo_pi
+simforge report projects/monte_carlo_pi
 ```
 
 Optional GPU verification:
@@ -41,7 +41,7 @@ python -m pytest -m gpu -q
 
 - [ ] Decide whether to commit `projects/` demo artifacts.
 - [ ] If committing demo artifacts, confirm benchmark numbers are clearly documented as local demo outputs.
-- [ ] If not committing demo artifacts, confirm `sim2gpu run-demo monte_carlo_pi` regenerates them.
+- [ ] If not committing demo artifacts, confirm `simforge run-demo monte_carlo_pi` regenerates them.
 
 ## Final Notes
 

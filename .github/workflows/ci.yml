@@ -1,4 +1,4 @@
-name: CI
+﻿name: CI
 
 on:
   push:
@@ -33,7 +33,7 @@ jobs:
 
       - name: Smoke test CLI
         run: |
-          sim2gpu --help
-          sim2gpu list-backends
-          sim2gpu convert examples/monte_carlo_pi/input_cpu.py --target cupy --dry-run
+          simforge --help
+          simforge list-backends
+          simforge convert examples/monte_carlo_pi/input_cpu.py --target cupy --dry-run
 

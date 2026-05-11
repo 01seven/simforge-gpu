@@ -1,13 +1,13 @@
 import json
 
-from sim2gpu.cli import main
-from sim2gpu.pipeline import collect_doctor_report
+from simforge_gpu.cli import main
+from simforge_gpu.pipeline import collect_doctor_report
 
 
 def test_collect_doctor_report_is_no_gpu_safe():
     report = collect_doctor_report()
 
-    assert "sim2gpu Doctor" in report
+    assert "SimForge GPU Doctor" in report
     assert "Python:" in report
     assert "Package import: OK" in report
     assert "cupy   MVP backend / implemented" in report
@@ -21,7 +21,7 @@ def test_doctor_cli_prints_environment_report(capsys):
 
     captured = capsys.readouterr()
     assert exit_code == 0
-    assert "sim2gpu Doctor" in captured.out
+    assert "SimForge GPU Doctor" in captured.out
     assert "Package import: OK" in captured.out
     assert "No-GPU MVP commands remain available" in captured.out
 

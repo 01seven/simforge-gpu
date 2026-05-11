@@ -1,6 +1,6 @@
 import json
 
-from sim2gpu.ir.schema import AnalysisIR, ConvertibleRegion, GpuSuitability
+from simforge_gpu.ir.schema import AnalysisIR, ConvertibleRegion, GpuSuitability
 
 
 def test_analysis_ir_serializes_to_stable_json():

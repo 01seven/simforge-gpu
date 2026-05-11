@@ -1,4 +1,4 @@
-"""Lightweight serializable schemas for sim2gpu planning."""
+"""Lightweight serializable schemas for SimForge GPU planning."""
 
 from __future__ import annotations
 

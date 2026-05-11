@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from sim2gpu.cli import build_parser
+from simforge_gpu.cli import build_parser
 
 
 def test_demo_doc_exists_and_lists_reproducible_no_gpu_commands():
@@ -10,23 +10,23 @@ def test_demo_doc_exists_and_lists_reproducible_no_gpu_commands():
     text = demo.read_text(encoding="utf-8")
     required = [
         "python -m pip install -e .",
-        "sim2gpu doctor",
-        "sim2gpu doctor --json",
-        "sim2gpu list-backends",
-        "sim2gpu list-backends --json",
-        "sim2gpu list-patterns --json",
-        "sim2gpu analyze examples/monte_carlo_pi/input_cpu.py",
-        "sim2gpu convert examples/monte_carlo_pi/input_cpu.py --target cupy",
-        "sim2gpu convert examples/monte_carlo_pi/input_cpu.py --target cupy --dry-run",
-        "sim2gpu convert examples/monte_carlo_pi/input_cpu.py --target cupy --validate --benchmark",
-        "sim2gpu convert examples/monte_carlo_pi/input_cpu.py --target torch",
-        "sim2gpu run-demo monte_carlo_pi",
-        "sim2gpu report projects/monte_carlo_pi",
-        "sim2gpu check-artifacts projects/monte_carlo_pi",
-        "sim2gpu demo-status",
-        "sim2gpu demo-status --json",
-        "sim2gpu inspect-project projects/permutation_test",
-        "sim2gpu inspect-project projects/permutation_test --json",
+        "simforge doctor",
+        "simforge doctor --json",
+        "simforge list-backends",
+        "simforge list-backends --json",
+        "simforge list-patterns --json",
+        "simforge analyze examples/monte_carlo_pi/input_cpu.py",
+        "simforge convert examples/monte_carlo_pi/input_cpu.py --target cupy",
+        "simforge convert examples/monte_carlo_pi/input_cpu.py --target cupy --dry-run",
+        "simforge convert examples/monte_carlo_pi/input_cpu.py --target cupy --validate --benchmark",
+        "simforge convert examples/monte_carlo_pi/input_cpu.py --target torch",
+        "simforge run-demo monte_carlo_pi",
+        "simforge report projects/monte_carlo_pi",
+        "simforge check-artifacts projects/monte_carlo_pi",
+        "simforge demo-status",
+        "simforge demo-status --json",
+        "simforge inspect-project projects/permutation_test",
+        "simforge inspect-project projects/permutation_test --json",
         "python -m pytest -q",
         "python -m pytest -m gpu -q",
     ]

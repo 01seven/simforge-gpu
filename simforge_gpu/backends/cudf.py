@@ -1,6 +1,6 @@
-"""Planned-only cuDF backend metadata."""
+﻿"""Planned-only cuDF backend metadata."""
 
-from sim2gpu.backends.base import BackendInfo
+from simforge_gpu.backends.base import BackendInfo
 
 CUDF_BACKEND = BackendInfo(
     name="cudf",

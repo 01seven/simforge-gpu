@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-from sim2gpu.cli import main
+from simforge_gpu.cli import main
 
 
 def test_list_backends_prints_mvp_backend_status(capsys):
@@ -97,7 +97,7 @@ def test_explain_reads_plan_and_can_write_report(tmp_path, capsys):
 
 
 def test_validate_writes_no_gpu_skip_report(tmp_path, capsys, monkeypatch):
-    monkeypatch.setenv("SIM2GPU_DISABLE_GPU", "1")
+    monkeypatch.setenv("SIMFORGE_DISABLE_GPU", "1")
     original = Path("examples/monte_carlo_pi/input_cpu.py")
     generated = tmp_path / "input_cpu_gpu.py"
     generated.write_text("import cupy as cp\n", encoding="utf-8")
@@ -116,7 +116,7 @@ def test_validate_writes_no_gpu_skip_report(tmp_path, capsys, monkeypatch):
 
 
 def test_validate_accepts_custom_tolerance_in_no_gpu_mode(tmp_path, capsys, monkeypatch):
-    monkeypatch.setenv("SIM2GPU_DISABLE_GPU", "1")
+    monkeypatch.setenv("SIMFORGE_DISABLE_GPU", "1")
     original = Path("examples/monte_carlo_pi/input_cpu.py")
     generated = tmp_path / "input_cpu_gpu.py"
     generated.write_text("import cupy as cp\n", encoding="utf-8")
@@ -143,7 +143,7 @@ def test_validate_accepts_custom_tolerance_in_no_gpu_mode(tmp_path, capsys, monk
 
 
 def test_validate_writes_structured_run_artifact_in_no_gpu_mode(tmp_path, monkeypatch):
-    monkeypatch.setenv("SIM2GPU_DISABLE_GPU", "1")
+    monkeypatch.setenv("SIMFORGE_DISABLE_GPU", "1")
     original = Path("examples/monte_carlo_pi/input_cpu.py")
     generated_dir = tmp_path / "generated"
     generated_dir.mkdir()
@@ -168,7 +168,7 @@ def test_validate_writes_structured_run_artifact_in_no_gpu_mode(tmp_path, monkey
 
 
 def test_validate_accepts_repeat_in_no_gpu_mode(tmp_path, monkeypatch):
-    monkeypatch.setenv("SIM2GPU_DISABLE_GPU", "1")
+    monkeypatch.setenv("SIMFORGE_DISABLE_GPU", "1")
     original = Path("examples/monte_carlo_pi/input_cpu.py")
     generated_dir = tmp_path / "generated"
     generated_dir.mkdir()
@@ -195,7 +195,7 @@ def test_validate_accepts_repeat_in_no_gpu_mode(tmp_path, monkeypatch):
 
 
 def test_benchmark_writes_no_gpu_skip_report_without_speedup(tmp_path, capsys, monkeypatch):
-    monkeypatch.setenv("SIM2GPU_DISABLE_GPU", "1")
+    monkeypatch.setenv("SIMFORGE_DISABLE_GPU", "1")
     original = Path("examples/monte_carlo_pi/input_cpu.py")
     generated = tmp_path / "input_cpu_gpu.py"
     generated.write_text("import cupy as cp\n", encoding="utf-8")
@@ -214,7 +214,7 @@ def test_benchmark_writes_no_gpu_skip_report_without_speedup(tmp_path, capsys, m
 
 
 def test_benchmark_accepts_repeat_and_warmup_in_no_gpu_mode(tmp_path, capsys, monkeypatch):
-    monkeypatch.setenv("SIM2GPU_DISABLE_GPU", "1")
+    monkeypatch.setenv("SIMFORGE_DISABLE_GPU", "1")
     original = Path("examples/monte_carlo_pi/input_cpu.py")
     generated = tmp_path / "input_cpu_gpu.py"
     generated.write_text("import cupy as cp\n", encoding="utf-8")
@@ -243,7 +243,7 @@ def test_benchmark_accepts_repeat_and_warmup_in_no_gpu_mode(tmp_path, capsys, mo
 
 
 def test_benchmark_writes_structured_run_artifact_in_no_gpu_mode(tmp_path, monkeypatch):
-    monkeypatch.setenv("SIM2GPU_DISABLE_GPU", "1")
+    monkeypatch.setenv("SIMFORGE_DISABLE_GPU", "1")
     original = Path("examples/monte_carlo_pi/input_cpu.py")
     generated_dir = tmp_path / "generated"
     generated_dir.mkdir()
@@ -274,7 +274,7 @@ def test_benchmark_writes_structured_run_artifact_in_no_gpu_mode(tmp_path, monke
 
 
 def test_benchmark_skip_report_lists_trust_indicators(tmp_path, monkeypatch):
-    monkeypatch.setenv("SIM2GPU_DISABLE_GPU", "1")
+    monkeypatch.setenv("SIMFORGE_DISABLE_GPU", "1")
     original = Path("examples/monte_carlo_pi/input_cpu.py")
     generated = tmp_path / "input_cpu_gpu.py"
     generated.write_text("import cupy as cp\n", encoding="utf-8")
@@ -324,7 +324,7 @@ def test_report_command_prints_release_summary(tmp_path, capsys):
 
     captured = capsys.readouterr()
     assert exit_code == 0
-    assert "# sim2gpu Project Report" in captured.out
+    assert "# SimForge GPU Project Report" in captured.out
     assert "Overall status:" in captured.out
     assert "Generated code: yes" in captured.out
     assert "Unsupported features: 0" in captured.out
@@ -332,7 +332,7 @@ def test_report_command_prints_release_summary(tmp_path, capsys):
 
 
 def test_run_demo_generates_no_gpu_safe_vertical_slice(tmp_path, capsys, monkeypatch):
-    monkeypatch.setenv("SIM2GPU_DISABLE_GPU", "1")
+    monkeypatch.setenv("SIMFORGE_DISABLE_GPU", "1")
 
     exit_code = main(
         [

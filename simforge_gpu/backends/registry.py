@@ -1,11 +1,11 @@
-"""Backend registry for implemented and planned targets."""
+﻿"""Backend registry for implemented and planned targets."""
 
-from sim2gpu.backends.base import BackendInfo, UnsupportedBackendError
-from sim2gpu.backends.cudf import CUDF_BACKEND
-from sim2gpu.backends.cupy import CUPY_BACKEND
-from sim2gpu.backends.jax import JAX_BACKEND
-from sim2gpu.backends.numba_cuda import NUMBA_CUDA_BACKEND
-from sim2gpu.backends.torch import TORCH_BACKEND
+from simforge_gpu.backends.base import BackendInfo, UnsupportedBackendError
+from simforge_gpu.backends.cudf import CUDF_BACKEND
+from simforge_gpu.backends.cupy import CUPY_BACKEND
+from simforge_gpu.backends.jax import JAX_BACKEND
+from simforge_gpu.backends.numba_cuda import NUMBA_CUDA_BACKEND
+from simforge_gpu.backends.torch import TORCH_BACKEND
 
 
 _BACKENDS: tuple[BackendInfo, ...] = (

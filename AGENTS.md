@@ -1,11 +1,11 @@
-# AGENTS.md
+﻿# AGENTS.md
 
 This file is the repository-level operating guide for AI coding agents working on
-`sim2gpu`.
+`SimForge GPU`.
 
 ## Project Positioning
 
-`sim2gpu` is a correctness-first, AI-agent-assisted workflow and Python toolkit
+`SimForge GPU` is a correctness-first, AI-agent-assisted workflow and Python toolkit
 for migrating NumPy-based statistical simulation code from CPU to GPU, with
 conversion plans, validation reports, benchmarks, and explanations.
 
@@ -109,7 +109,7 @@ Before changing code, read:
 - `AGENTS.md`
 - `TASKS.md`
 - The relevant file in `docs/`
-- Any relevant workflow in `skills/sim2gpu/`
+- Any relevant workflow in `skills/simforge_gpu/`
 
 Confirm the task stays inside the MVP boundary.
 

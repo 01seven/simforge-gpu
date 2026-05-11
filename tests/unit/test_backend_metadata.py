@@ -1,6 +1,6 @@
 import pytest
 
-from sim2gpu.backends.registry import get_backend
+from simforge_gpu.backends.registry import get_backend
 
 
 def test_cupy_backend_declares_supported_metadata_without_importing_cupy():

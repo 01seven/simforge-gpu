@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-from sim2gpu.cli import main
+from simforge_gpu.cli import main
 
 
 EXAMPLE = Path("examples/monte_carlo_pi/input_cpu.py")
@@ -90,4 +90,4 @@ def test_pyproject_declares_console_script_entrypoint():
 
     assert pyproject.exists()
     text = pyproject.read_text(encoding="utf-8")
-    assert 'sim2gpu = "sim2gpu.cli:main"' in text
+    assert 'simforge = "simforge_gpu.cli:main"' in text

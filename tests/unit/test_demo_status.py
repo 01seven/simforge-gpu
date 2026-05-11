@@ -1,8 +1,8 @@
 import json
 from pathlib import Path
 
-from sim2gpu.cli import main
-from sim2gpu.pipeline import collect_demo_status
+from simforge_gpu.cli import main
+from simforge_gpu.pipeline import collect_demo_status
 
 
 def _write_project(root: Path, name: str, unsupported: str) -> Path:

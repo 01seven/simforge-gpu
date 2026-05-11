@@ -1,7 +1,7 @@
-# sim2gpu Agent Workflow
+# SimForge GPU Agent Workflow
 
 This file defines the strict workflow for agents migrating statistical
-simulation code with `sim2gpu`. It is a project workflow outline, not a complete
+simulation code with `SimForge GPU`. It is a project workflow outline, not a complete
 published ChatGPT Skill package.
 
 Core principle:

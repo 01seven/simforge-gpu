@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-from sim2gpu.cli import main
+from simforge_gpu.cli import main
 
 
 EXAMPLES = (

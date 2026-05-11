@@ -1,9 +1,9 @@
-"""Planned-only Torch backend metadata.
+﻿"""Planned-only Torch backend metadata.
 
 This module intentionally does not implement torch conversion.
 """
 
-from sim2gpu.backends.base import BackendInfo
+from simforge_gpu.backends.base import BackendInfo
 
 TORCH_BACKEND = BackendInfo(
     name="torch",

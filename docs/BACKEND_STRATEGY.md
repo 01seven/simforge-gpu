@@ -1,4 +1,4 @@
-# Backend Strategy
+﻿# Backend Strategy
 
 ## Why CuPy Is The MVP Default
 
@@ -57,7 +57,7 @@ without importing actual GPU libraries.
 If a user runs:
 
 ```bash
-sim2gpu convert input.py --target torch
+simforge convert input.py --target torch
 ```
 
 The CLI should return:

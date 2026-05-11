@@ -1,4 +1,4 @@
-"""Subprocess runners for optional CPU/GPU execution."""
+﻿"""Subprocess runners for optional CPU/GPU execution."""
 
 from __future__ import annotations
 
@@ -27,7 +27,7 @@ class ScriptRun:
 
 def cupy_kernel_probe() -> tuple[bool, str]:
     code = """
-from sim2gpu.runners.python_subprocess import activate_cuda_dll_directories, prepare_cuda_subprocess_environment
+from simforge_gpu.runners.python_subprocess import activate_cuda_dll_directories, prepare_cuda_subprocess_environment
 import os
 activate_cuda_dll_directories()
 cwd, env = prepare_cuda_subprocess_environment()
@@ -65,7 +65,7 @@ def run_python_script(path: Path, use_cuda_workdir: bool = False) -> ScriptRun:
             sys.executable,
             "-c",
             (
-                "from sim2gpu.runners.python_subprocess import "
+                "from simforge_gpu.runners.python_subprocess import "
                 "activate_cuda_dll_directories; "
                 "activate_cuda_dll_directories(); "
                 f"exec(compile(open({str(script)!r}, encoding='utf-8').read(), {str(script)!r}, 'exec'))"

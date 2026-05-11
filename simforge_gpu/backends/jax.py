@@ -1,6 +1,6 @@
-"""Planned-only JAX backend metadata."""
+﻿"""Planned-only JAX backend metadata."""
 
-from sim2gpu.backends.base import BackendInfo
+from simforge_gpu.backends.base import BackendInfo
 
 JAX_BACKEND = BackendInfo(
     name="jax",

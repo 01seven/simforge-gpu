@@ -1,4 +1,4 @@
-"""Structured conversion plan schema and factory."""
+﻿"""Structured conversion plan schema and factory."""
 
 from __future__ import annotations
 
@@ -6,8 +6,8 @@ import json
 from dataclasses import asdict, dataclass
 from typing import Any
 
-from sim2gpu.backends.registry import get_backend
-from sim2gpu.ir.schema import AnalysisIR, UnsupportedFeature
+from simforge_gpu.backends.registry import get_backend
+from simforge_gpu.ir.schema import AnalysisIR, UnsupportedFeature
 
 
 @dataclass(frozen=True)

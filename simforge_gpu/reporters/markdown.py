@@ -1,8 +1,8 @@
-"""Markdown report renderers for MVP artifacts."""
+﻿"""Markdown report renderers for MVP artifacts."""
 
 from __future__ import annotations
 
-from sim2gpu.ir.schema import UnsupportedFeature
+from simforge_gpu.ir.schema import UnsupportedFeature
 
 
 def render_unsupported_report(features: list[UnsupportedFeature] | tuple[UnsupportedFeature, ...]) -> str:

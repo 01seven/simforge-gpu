@@ -6,38 +6,38 @@ planned work.
 ## Implemented In The MVP
 
 - Local package metadata via `pyproject.toml`.
-- CLI entry point: `sim2gpu = "sim2gpu.cli:main"`.
-- `sim2gpu --help`.
-- `sim2gpu list-backends`.
-- `sim2gpu list-backends --json`.
-- `sim2gpu list-patterns`.
-- `sim2gpu list-patterns --json`.
-- `sim2gpu analyze <input.py>`.
-- `sim2gpu convert <input.py> --target cupy`.
-- `sim2gpu convert <input.py> --target cupy --dry-run`.
-- `sim2gpu convert <input.py> --target cupy --validate --benchmark` for
+- CLI entry point: `simforge = "simforge_gpu.cli:main"`.
+- `simforge --help`.
+- `simforge list-backends`.
+- `simforge list-backends --json`.
+- `simforge list-patterns`.
+- `simforge list-patterns --json`.
+- `simforge analyze <input.py>`.
+- `simforge convert <input.py> --target cupy`.
+- `simforge convert <input.py> --target cupy --dry-run`.
+- `simforge convert <input.py> --target cupy --validate --benchmark` for
   optional GPU execution when CuPy/CUDA are available.
-- `sim2gpu convert <input.py> --target torch` as an explicit unsupported path.
-- `sim2gpu explain <conversion_plan.json>`.
-- `sim2gpu validate <original.py> <generated_gpu.py>` as optional real GPU
+- `simforge convert <input.py> --target torch` as an explicit unsupported path.
+- `simforge explain <conversion_plan.json>`.
+- `simforge validate <original.py> <generated_gpu.py>` as optional real GPU
   validation with no-GPU skip fallback.
-- `sim2gpu validate <original.py> <generated_gpu.py> --tolerance <float>`.
-- `sim2gpu validate <original.py> <generated_gpu.py> --repeat <n>` for
+- `simforge validate <original.py> <generated_gpu.py> --tolerance <float>`.
+- `simforge validate <original.py> <generated_gpu.py> --repeat <n>` for
   repeated scalar stochastic validation.
-- `sim2gpu benchmark <original.py> <generated_gpu.py>` as optional real GPU
+- `simforge benchmark <original.py> <generated_gpu.py>` as optional real GPU
   benchmark with no-GPU skip fallback.
-- `sim2gpu benchmark <original.py> <generated_gpu.py> --repeat <n> --warmup <n>`.
-- `sim2gpu init-example <name>`.
-- `sim2gpu run-demo <name>`.
-- `sim2gpu report <project_dir>`.
-- `sim2gpu demo-status`.
-- `sim2gpu demo-status --json`.
-- `sim2gpu inspect-project <project_dir>`.
-- `sim2gpu inspect-project <project_dir> --json`.
-- `sim2gpu check-artifacts <project_dir>`.
-- `sim2gpu check-artifacts <project_dir> --json`.
-- `sim2gpu doctor`.
-- `sim2gpu doctor --json`.
+- `simforge benchmark <original.py> <generated_gpu.py> --repeat <n> --warmup <n>`.
+- `simforge init-example <name>`.
+- `simforge run-demo <name>`.
+- `simforge report <project_dir>`.
+- `simforge demo-status`.
+- `simforge demo-status --json`.
+- `simforge inspect-project <project_dir>`.
+- `simforge inspect-project <project_dir> --json`.
+- `simforge check-artifacts <project_dir>`.
+- `simforge check-artifacts <project_dir> --json`.
+- `simforge doctor`.
+- `simforge doctor --json`.
 - Standalone validation and benchmark reports default to the matching project
   `reports/` directory when the generated file is under `projects/*/generated/`.
 - Standalone validation and benchmark commands also write structured run
@@ -73,14 +73,14 @@ planned work.
 - All first-batch examples run through the no-GPU conversion pipeline and
   produce generated source plus reports.
 - All first-batch generated source outputs are covered by golden tests.
-- Generated demo projects can be summarized with `sim2gpu demo-status`.
+- Generated demo projects can be summarized with `simforge demo-status`.
 - Generated demo project summaries can be emitted as JSON for CI or agent
   workflows.
-- A single generated project can be inspected with `sim2gpu inspect-project`.
+- A single generated project can be inspected with `simforge inspect-project`.
 - Single-project inspection can be emitted as JSON for CI or agent workflows.
-- Local no-GPU environment status can be checked with `sim2gpu doctor`.
+- Local no-GPU environment status can be checked with `simforge doctor`.
 - Local no-GPU environment status can be emitted as JSON with
-  `sim2gpu doctor --json`.
+  `simforge doctor --json`.
 - `docs/DEMO.md` provides a reproducible no-GPU MVP walkthrough.
 - Partial conversion keeps `import numpy as np` when unsupported `np.*` calls
   remain in generated code.
@@ -91,7 +91,7 @@ planned work.
 ## Intentional MVP Limitations
 
 - Generated CuPy code is syntax checked but not executed in no-GPU mode.
-- `sim2gpu doctor` checks package/workspace status and optional CuPy/CUDA
+- `simforge doctor` checks package/workspace status and optional CuPy/CUDA
   execution readiness.
 - Validation is reported as `SKIPPED` when GPU execution is unavailable or
   disabled.

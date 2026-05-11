@@ -1,6 +1,6 @@
 import pytest
 
-from sim2gpu.backends.registry import get_backend, list_backends
+from simforge_gpu.backends.registry import get_backend, list_backends
 
 
 def test_list_backends_separates_implemented_and_planned_backends():

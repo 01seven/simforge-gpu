@@ -1,4 +1,4 @@
-from sim2gpu.transpilers.numpy_to_cupy import map_numpy_api, rewrite_supported_numpy_calls
+from simforge_gpu.transpilers.numpy_to_cupy import map_numpy_api, rewrite_supported_numpy_calls
 
 
 def test_map_numpy_api_maps_only_supported_calls():

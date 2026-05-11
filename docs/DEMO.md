@@ -1,6 +1,6 @@
 # GPU-Capable MVP Demo
 
-This walkthrough shows the current `sim2gpu` MVP. The core workflow still runs
+This walkthrough shows the current `SimForge GPU` MVP. The core workflow still runs
 without CUDA, CuPy, or a real LLM API. When CuPy/CUDA are available, the same
 commands can execute generated CuPy code for validation and benchmark reports.
 
@@ -19,12 +19,12 @@ python -m pip install -e ".[gpu]"
 ## 2. Inspect Supported Backends And Patterns
 
 ```bash
-sim2gpu doctor
-sim2gpu doctor --json
-sim2gpu list-backends
-sim2gpu list-backends --json
-sim2gpu list-patterns
-sim2gpu list-patterns --json
+simforge doctor
+simforge doctor --json
+simforge list-backends
+simforge list-backends --json
+simforge list-patterns
+simforge list-patterns --json
 ```
 
 Expected backend status:
@@ -40,7 +40,7 @@ cudf   planned
 ## 3. Analyze The Monte Carlo Pi Example
 
 ```bash
-sim2gpu analyze examples/monte_carlo_pi/input_cpu.py
+simforge analyze examples/monte_carlo_pi/input_cpu.py
 ```
 
 This writes:
@@ -52,9 +52,9 @@ projects/monte_carlo_pi/reports/analysis_ir.json
 ## 4. Convert To The MVP CuPy Target
 
 ```bash
-sim2gpu convert examples/monte_carlo_pi/input_cpu.py --target cupy --dry-run
-sim2gpu convert examples/monte_carlo_pi/input_cpu.py --target cupy
-sim2gpu convert examples/monte_carlo_pi/input_cpu.py --target cupy --validate --benchmark
+simforge convert examples/monte_carlo_pi/input_cpu.py --target cupy --dry-run
+simforge convert examples/monte_carlo_pi/input_cpu.py --target cupy
+simforge convert examples/monte_carlo_pi/input_cpu.py --target cupy --validate --benchmark
 ```
 
 This writes:
@@ -82,7 +82,7 @@ before writing generated GPU code.
 ## 5. Confirm Torch Is Planned Only
 
 ```bash
-sim2gpu convert examples/monte_carlo_pi/input_cpu.py --target torch
+simforge convert examples/monte_carlo_pi/input_cpu.py --target torch
 ```
 
 Expected behavior:
@@ -94,13 +94,13 @@ Expected behavior:
 ## 6. Standalone Reports
 
 ```bash
-sim2gpu explain projects/monte_carlo_pi/reports/conversion_plan.json
-sim2gpu validate examples/monte_carlo_pi/input_cpu.py projects/monte_carlo_pi/generated/input_cpu_gpu.py
-sim2gpu validate examples/monte_carlo_pi/input_cpu.py projects/monte_carlo_pi/generated/input_cpu_gpu.py --tolerance 0.2
-sim2gpu validate examples/monte_carlo_pi/input_cpu.py projects/monte_carlo_pi/generated/input_cpu_gpu.py --repeat 3 --tolerance 0.2
-sim2gpu benchmark examples/monte_carlo_pi/input_cpu.py projects/monte_carlo_pi/generated/input_cpu_gpu.py --repeat 5 --warmup 1
-sim2gpu report projects/monte_carlo_pi
-sim2gpu check-artifacts projects/monte_carlo_pi
+simforge explain projects/monte_carlo_pi/reports/conversion_plan.json
+simforge validate examples/monte_carlo_pi/input_cpu.py projects/monte_carlo_pi/generated/input_cpu_gpu.py
+simforge validate examples/monte_carlo_pi/input_cpu.py projects/monte_carlo_pi/generated/input_cpu_gpu.py --tolerance 0.2
+simforge validate examples/monte_carlo_pi/input_cpu.py projects/monte_carlo_pi/generated/input_cpu_gpu.py --repeat 3 --tolerance 0.2
+simforge benchmark examples/monte_carlo_pi/input_cpu.py projects/monte_carlo_pi/generated/input_cpu_gpu.py --repeat 5 --warmup 1
+simforge report projects/monte_carlo_pi
+simforge check-artifacts projects/monte_carlo_pi
 ```
 
 In no-GPU mode:
@@ -126,7 +126,7 @@ In GPU-capable mode:
 ## 7. Run The One-Command Demo
 
 ```bash
-sim2gpu run-demo monte_carlo_pi
+simforge run-demo monte_carlo_pi
 ```
 
 This runs conversion, validation, benchmark, and final project reporting for the
@@ -136,8 +136,8 @@ with explicit reasons.
 ## 8. Summarize Demo Projects
 
 ```bash
-sim2gpu demo-status
-sim2gpu demo-status --json
+simforge demo-status
+simforge demo-status --json
 ```
 
 This prints a table with backend, generated-file presence, unsupported count,
@@ -147,8 +147,8 @@ project summary as machine-readable JSON for CI or agent workflows.
 ## 9. Inspect A Partial Conversion
 
 ```bash
-sim2gpu inspect-project projects/permutation_test
-sim2gpu inspect-project projects/permutation_test --json
+simforge inspect-project projects/permutation_test
+simforge inspect-project projects/permutation_test --json
 ```
 
 The permutation-test example is intentionally useful for demoing partial

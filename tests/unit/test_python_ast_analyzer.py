@@ -1,4 +1,4 @@
-from sim2gpu.analyzers.python_ast import analyze_source
+from simforge_gpu.analyzers.python_ast import analyze_source
 
 
 def test_analyze_source_detects_numpy_loops_random_calls_and_outputs():

@@ -1,4 +1,4 @@
-from sim2gpu.runners.python_subprocess import parse_script_output
+from simforge_gpu.runners.python_subprocess import parse_script_output
 
 
 def test_parse_script_output_prefers_json_array_from_last_line():

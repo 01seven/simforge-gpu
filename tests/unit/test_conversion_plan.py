@@ -1,7 +1,7 @@
 import json
 
-from sim2gpu.ir.schema import AnalysisIR, GpuSuitability
-from sim2gpu.planners.conversion_plan import create_conversion_plan
+from simforge_gpu.ir.schema import AnalysisIR, GpuSuitability
+from simforge_gpu.planners.conversion_plan import create_conversion_plan
 
 
 def test_create_conversion_plan_records_backend_status_and_unsupported_target():

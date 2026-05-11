@@ -1,6 +1,6 @@
-"""CuPy backend metadata for the MVP."""
+﻿"""CuPy backend metadata for the MVP."""
 
-from sim2gpu.backends.base import BackendInfo
+from simforge_gpu.backends.base import BackendInfo
 
 SUPPORTED_NUMPY_APIS = (
     "np.array",
