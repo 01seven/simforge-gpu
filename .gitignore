@@ -29,10 +29,11 @@ htmlcov/
 # Local scratch artifacts
 benchmark.json
 validation.json
+.worktrees
+.worktrees/
 
 # Editor and OS files
 .DS_Store
 Thumbs.db
 .idea/
 .vscode/
-
