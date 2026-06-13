@@ -21,6 +21,7 @@ def detect_unsupported(source: str, target_backend: str = "cupy") -> tuple[Unsup
                     reason=backend.unsupported_reason(),
                     action="Use --target cupy for the current supported backend.",
                     category="backend_not_implemented",
+                    source="backend_policy",
                 )
             )
     except ValueError as exc:
@@ -30,6 +31,7 @@ def detect_unsupported(source: str, target_backend: str = "cupy") -> tuple[Unsup
                 reason=str(exc),
                 action="Use one of the listed backend names.",
                 category="unsupported_backend",
+                source="backend_policy",
             )
         )
 

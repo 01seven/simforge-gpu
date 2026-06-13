@@ -7,7 +7,7 @@ published ChatGPT Skill package.
 Core principle:
 
 ```text
-LLM suggests. Rules transform. Tests decide. Reports explain.
+Model proposes. Harness constrains. Tools execute. Tests decide. Reports explain.
 ```
 
 ## Non-Negotiable Rules
@@ -18,6 +18,10 @@ LLM suggests. Rules transform. Tests decide. Reports explain.
 - Do not claim speedup without a real benchmark.
 - Do not require a GPU for analysis, planning, reporting, or no-GPU tests.
 - Do not rely on real LLM output for CI.
+- Do not call a model API from `simforge`; external agents write advisory
+  artifacts locally.
+- Treat `model_suggestion.json` as opinion and `conversion_plan.json` as the
+  harness-accepted plan.
 
 ## Step 1: Source Code Intake
 
@@ -135,6 +139,46 @@ Failure behavior:
 - For `torch`, `jax`, `numba`, or `cudf`, report planned / not implemented and
   stop code generation.
 
+## Optional Step 4A: Model Suggestion Review
+
+Agent action:
+
+- If using external model advice, write `model_suggestion.json` with schema
+  version `1.0`.
+- Run `simforge review-suggestion model_suggestion.json --source input.py` to
+  produce `suggestion_review.json` and `suggestion_review.md` without
+  generating GPU code.
+- For model-assisted conversion, run
+  `simforge convert input.py --target cupy --suggestion model_suggestion.json`.
+
+Do not:
+
+- Put API keys, network calls, or model SDK calls in the harness.
+- Let model advice change backend implementation status.
+- Let model advice remove rule-detected unsupported features.
+- Let model advice mark validation, benchmark, syntax, or quality gates as
+  passed.
+
+Input:
+
+- Source file and external-agent `model_suggestion.json`.
+
+Output:
+
+- `reports/model_suggestion.json`
+- `reports/suggestion_review.json`
+- `reports/suggestion_review.md`
+- `reports/agent_trace.json` for `convert --suggestion`
+
+Gate:
+
+- Suggestion review is `ACCEPTED`, `ACCEPTED_WITH_WARNINGS`, or `REJECTED`.
+
+Failure behavior:
+
+- Rejected suggestions stop before code generation and return an input-error
+  exit code.
+
 ## Step 5: Conversion Plan
 
 Agent action:
@@ -142,10 +186,13 @@ Agent action:
 - Generate a structured conversion plan before transformation.
 - Include patterns, changes, validation strategy, equivalence level, risks, and
   unsupported features.
+- Merge accepted model advice only as source-labeled advisory fields.
 
 Do not:
 
-- Treat LLM suggestions as trusted transformations.
+- Treat model suggestions as trusted transformations.
+- Let model suggestions overwrite backend policy, unsupported detection,
+  validation, benchmark, syntax, or quality gate status.
 
 Input:
 

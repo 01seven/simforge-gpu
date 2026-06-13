@@ -23,9 +23,22 @@ class ConversionPlan:
     equivalence_level: str
     risks: tuple[str, ...]
     unsupported_features: tuple[UnsupportedFeature, ...]
+    source_intent: dict[str, str] | None = None
+    model_advisory: dict[str, Any] | None = None
+    validation_notes: tuple[dict[str, str], ...] = ()
+    model_risk_notes: tuple[dict[str, Any], ...] = ()
 
     def to_dict(self) -> dict[str, Any]:
-        return _json_ready(asdict(self))
+        payload = _json_ready(asdict(self))
+        for optional_field in (
+            "source_intent",
+            "model_advisory",
+            "validation_notes",
+            "model_risk_notes",
+        ):
+            if payload.get(optional_field) in (None, [], {}):
+                payload.pop(optional_field, None)
+        return payload
 
     def to_json(self) -> str:
         return json.dumps(self.to_dict(), indent=2, sort_keys=True) + "\n"
@@ -48,6 +61,7 @@ def create_conversion_plan(
                 reason=backend.unsupported_reason(),
                 action="Use --target cupy for the current supported backend.",
                 category="backend_not_implemented",
+                source="backend_policy",
             )
         )
 

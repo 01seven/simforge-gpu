@@ -5,7 +5,8 @@
 [![Backend: CuPy](https://img.shields.io/badge/backend-CuPy-2f6f9f)](docs/BACKEND_STRATEGY.md)
 [![Status: MVP](https://img.shields.io/badge/status-MVP-orange)](docs/MVP_SCOPE.md)
 
-Correctness-first NumPy simulation migration to CuPy, with conversion plans,
+Local CPU-to-GPU migration harness for AI coding agents, focused on
+correctness-first NumPy simulation migration to CuPy, with conversion plans,
 validation reports, benchmark reports, and explicit unsupported-feature
 handling.
 
@@ -14,7 +15,7 @@ handling.
 is `simforge`.
 
 ```text
-LLM suggests. Rules transform. Tests decide. Reports explain.
+Model proposes. Harness constrains. Tools execute. Tests decide. Reports explain.
 ```
 
 **Keywords:** NumPy, CuPy, GPU migration, Monte Carlo, statistical simulation,
@@ -43,9 +44,13 @@ SimForge GPU makes the migration reviewable:
 - validate deterministic or stochastic outputs when possible;
 - benchmark only when real execution is available;
 - explain what changed, what failed, and what remains uncertain.
+- optionally review an external agent's `model_suggestion.json` without trusting
+  it as a transformation.
 
-It is not a universal compiler. It is a conservative migration workbench for
-small, auditable Python simulation scripts.
+It is not a universal compiler or a model API wrapper. It is a conservative
+local migration harness for small, auditable Python simulation scripts. External
+agents can provide advice, but the harness validates that advice and keeps
+`conversion_plan.json` as the accepted plan.
 
 ## What Makes It Different
 
@@ -53,7 +58,8 @@ small, auditable Python simulation scripts.
 | --- | --- | --- |
 | Naive search-and-replace | `np` becomes `cp` everywhere | Unsafe code may look converted |
 | Black-box LLM conversion | A model rewrites code directly | Unsupported behavior can be hidden |
-| SimForge GPU | Rules create a plan, transform supported regions, and produce reports | Slower to expand, but easier to audit |
+| SimForge GPU deterministic path | Rules create a plan, transform supported regions, and produce reports | Slower to expand, but easier to audit |
+| SimForge GPU model-assisted path | External model advice is reviewed, source-labeled, and selectively merged | Advice is useful, but never trusted alone |
 
 The goal is not to claim speedup early. The goal is to make every conversion
 explainable before it becomes executable.
@@ -66,6 +72,7 @@ explainable before it becomes executable.
 | NumPy to CuPy conversion | Implemented for an explicit MVP API subset |
 | Real CuPy validation and benchmark | Implemented when CuPy/CUDA are available |
 | no-GPU analysis, planning, reporting, and tests | Implemented |
+| External model suggestion review | Implemented as local JSON artifact review |
 | TorchBackend | Planned only, no fake torch code |
 | JAX, Numba-CUDA, cuDF, R support | Roadmap only |
 
@@ -105,6 +112,22 @@ flowchart LR
 
 Every conversion starts with a plan. Unsupported features are recorded as
 artifacts, not hidden as comments in generated code.
+
+External model advice is optional:
+
+```mermaid
+flowchart LR
+    A["NumPy simulation script"] --> B["Static analysis"]
+    B --> C["model_suggestion.json"]
+    C --> D["Suggestion review"]
+    D --> E["conversion_plan.json"]
+    E --> F["Rule-based CuPy rewrite"]
+    F --> G["Reports and trace"]
+```
+
+`model_suggestion.json` is model opinion. `suggestion_review.json` is the
+harness review of that opinion. `conversion_plan.json` is the harness-accepted
+plan.
 
 ## Example
 
@@ -154,6 +177,15 @@ runs/validation.json
 runs/benchmark.json
 ```
 
+When a model suggestion is supplied, the workflow also writes:
+
+```text
+reports/model_suggestion.json
+reports/suggestion_review.json
+reports/suggestion_review.md
+reports/agent_trace.json
+```
+
 These artifacts are meant for review by humans, CI, and AI coding agents.
 
 ## Supported MVP Scope
@@ -191,6 +223,7 @@ The MVP does not support:
 - network, database, multiprocessing, or multithreading conversion;
 - class-heavy or dynamic `eval` / `exec` conversion;
 - fake benchmark speedups or unvalidated performance claims.
+- direct OpenAI or other model API calls from the `simforge` CLI.
 
 Unsupported reports include stable categories such as
 `backend_not_implemented`, `unsupported_numpy_api`, `pandas_pipeline`,
@@ -231,8 +264,10 @@ measurement belong to the next phase.
 | --- | --- |
 | `simforge analyze input.py` | Write static analysis IR |
 | `simforge convert input.py --target cupy` | Generate CuPy code and reports |
+| `simforge convert input.py --target cupy --suggestion model_suggestion.json` | Review model advice, merge accepted advisory fields, then convert |
 | `simforge convert input.py --target cupy --dry-run` | Plan only, no generated GPU file |
 | `simforge convert input.py --target torch` | Planned-only rejection path |
+| `simforge review-suggestion model_suggestion.json --source input.py` | Review model advice without generating code |
 | `simforge validate original.py generated_gpu.py` | Validate CPU/GPU outputs or skip safely |
 | `simforge benchmark original.py generated_gpu.py` | Benchmark CPU/GPU scripts or skip safely |
 | `simforge explain conversion_plan.json` | Render a human-readable explanation |

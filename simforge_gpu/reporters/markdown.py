@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from simforge_gpu.ir.schema import UnsupportedFeature
+from simforge_gpu.suggestions.review import SuggestionReview
 
 
 def render_unsupported_report(features: list[UnsupportedFeature] | tuple[UnsupportedFeature, ...]) -> str:
@@ -17,12 +18,61 @@ def render_unsupported_report(features: list[UnsupportedFeature] | tuple[Unsuppo
                 "",
                 f"Category: {feature.category}",
                 "",
+                f"Source: {feature.source}",
+                "",
                 f"Reason: {feature.reason}",
                 "",
                 f"Action: {feature.action}",
                 "",
             ]
         )
+    return "\n".join(lines)
+
+
+def render_suggestion_review_report(review: SuggestionReview) -> str:
+    lines = [
+        "# Suggestion Review",
+        "",
+        f"Review status: {review.status}",
+        f"Source file: {review.source_file}",
+        f"Suggestion file: {review.suggestion_file}",
+        "",
+        "## Accepted Fields",
+        "",
+    ]
+    if review.accepted_fields:
+        lines.extend(
+            f"- {entry.field}: {entry.reason}" for entry in review.accepted_fields
+        )
+    else:
+        lines.append("- No accepted fields.")
+    lines.extend(["", "## Warnings", ""])
+    if review.warnings:
+        lines.extend(f"- {warning.field}: {warning.message}" for warning in review.warnings)
+    else:
+        lines.append("- No warnings.")
+    lines.extend(["", "## Rejected Fields", ""])
+    if review.rejected_fields:
+        lines.extend(
+            f"- {entry.field}: {entry.reason}" for entry in review.rejected_fields
+        )
+    else:
+        lines.append("- No rejected fields.")
+    lines.extend(["", "## Unsupported", ""])
+    if review.unsupported_features:
+        for feature in review.unsupported_features:
+            lines.append(
+                f"- {feature.get('code', 'unknown')}: {feature.get('reason', '')}"
+            )
+    else:
+        lines.append("- No unsupported model suggestions.")
+    lines.extend(
+        [
+            "",
+            "Note: Model advisory input is not treated as a trusted transformation.",
+            "",
+        ]
+    )
     return "\n".join(lines)
 
 
@@ -151,6 +201,8 @@ def render_quality_report(result: dict[str, object]) -> str:
         f"Benchmark status: {result.get('benchmark_status', 'UNKNOWN')}",
         "",
     ]
+    if "suggestion_review_status" in result:
+        lines.extend([f"Suggestion review: {result['suggestion_review_status']}", ""])
     notes = result.get("notes", [])
     if notes:
         lines.append("Notes:")

@@ -14,6 +14,7 @@ No-GPU CI should cover:
 - Rule-based mapping metadata.
 - Report generation.
 - CLI command parsing.
+- Model suggestion schema validation, review, merge policy, and trace artifacts.
 
 No-GPU tests must not import CuPy as a required dependency.
 
@@ -85,8 +86,12 @@ Backend tests must verify:
 Tests must assert that selecting `--target torch` produces a structured
 unsupported result and an actionable message.
 
-## LLM Planner Mock Tests
+## Model Suggestion Fixture Tests
 
-If LLM-assisted planning is added later, tests must use a mock planner or fixture
-responses. CI must never depend on real LLM output, network access, or model
+Model-assisted harness tests use local `model_suggestion.json` fixtures. CI must
+never depend on real LLM output, network access, model SDKs, API keys, or model
 availability.
+
+Tests must verify that model suggestions cannot override backend policy,
+unsupported detection, validation status, benchmark status, syntax status,
+quality status, or speedup claims.
