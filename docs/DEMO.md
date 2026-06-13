@@ -79,7 +79,71 @@ generated CuPy scripts and writes measured reports.
 Use `--dry-run` when you want only the conversion plan and unsupported report
 before writing generated GPU code.
 
-## 5. Confirm Torch Is Planned Only
+## 5. Optional Model-Assisted Harness Flow
+
+An external coding agent may write `model_suggestion.json`. The harness reviews
+that local file; it does not call a model API.
+
+Create a local sample suggestion:
+
+```bash
+python - <<'PY'
+from pathlib import Path
+
+target = Path("projects/monte_carlo_pi/reports/model_suggestion.json")
+target.parent.mkdir(parents=True, exist_ok=True)
+target.write_text(
+    """{
+  "schema_version": "1.0",
+  "source_file": "examples/monte_carlo_pi/input_cpu.py",
+  "source_intent": "Estimate pi with Monte Carlo sampling.",
+  "suggested_backend": "cupy",
+  "mvp_fit": "yes",
+  "confidence": "high",
+  "risks": [
+    {
+      "code": "random_stream_difference",
+      "message": "CPU and GPU random streams are not expected to match.",
+      "severity": "medium"
+    }
+  ],
+  "unsupported_hypotheses": [],
+  "recommended_validation": {
+    "type": "stochastic",
+    "reason": "Compare scalar estimates with a stochastic tolerance."
+  }
+}
+""",
+    encoding="utf-8",
+)
+PY
+```
+
+Review the suggestion without generating code:
+
+```bash
+simforge review-suggestion projects/monte_carlo_pi/reports/model_suggestion.json --source examples/monte_carlo_pi/input_cpu.py --output-dir projects/monte_carlo_pi
+```
+
+Run model-assisted conversion:
+
+```bash
+simforge convert examples/monte_carlo_pi/input_cpu.py --target cupy --suggestion projects/monte_carlo_pi/reports/model_suggestion.json
+```
+
+This writes:
+
+```text
+projects/monte_carlo_pi/reports/model_suggestion.json
+projects/monte_carlo_pi/reports/suggestion_review.json
+projects/monte_carlo_pi/reports/suggestion_review.md
+projects/monte_carlo_pi/reports/agent_trace.json
+```
+
+`model_suggestion.json` is model opinion. `suggestion_review.json` is the
+harness review. `conversion_plan.json` remains the accepted plan.
+
+## 6. Confirm Torch Is Planned Only
 
 ```bash
 simforge convert examples/monte_carlo_pi/input_cpu.py --target torch
@@ -91,7 +155,7 @@ Expected behavior:
 - It does not generate torch code.
 - It writes an unsupported report under `projects/monte_carlo_pi_torch/`.
 
-## 6. Standalone Reports
+## 7. Standalone Reports
 
 ```bash
 simforge explain projects/monte_carlo_pi/reports/conversion_plan.json
@@ -123,7 +187,7 @@ In GPU-capable mode:
 - `report` prints a short release-style summary with an overall status and next
   recommended action.
 
-## 7. Run The One-Command Demo
+## 8. Run The One-Command Demo
 
 ```bash
 simforge run-demo monte_carlo_pi
@@ -133,7 +197,7 @@ This runs conversion, validation, benchmark, and final project reporting for the
 included Monte Carlo pi example. In no-GPU mode the execution gates are skipped
 with explicit reasons.
 
-## 8. Summarize Demo Projects
+## 9. Summarize Demo Projects
 
 ```bash
 simforge demo-status
@@ -144,7 +208,7 @@ This prints a table with backend, generated-file presence, unsupported count,
 validation status, and benchmark status. The `--json` option emits the same
 project summary as machine-readable JSON for CI or agent workflows.
 
-## 9. Inspect A Partial Conversion
+## 10. Inspect A Partial Conversion
 
 ```bash
 simforge inspect-project projects/permutation_test
@@ -157,7 +221,7 @@ sequential counter update. The generated source includes a partial-conversion
 warning and keeps `import numpy as np` because an unsupported NumPy call remains.
 The `--json` option emits the same inspection as structured JSON.
 
-## 10. Run Tests
+## 11. Run Tests
 
 ```bash
 python -m pytest -q

@@ -22,12 +22,19 @@ from simforge_gpu.reporters.markdown import (
     render_benchmark_report,
     render_explanation_report,
     render_quality_report,
+    render_suggestion_review_report,
     render_syntax_report,
     render_unsupported_report,
     render_validation_report,
 )
 from simforge_gpu.reporters.json_report import stable_json
 from simforge_gpu.runners.python_subprocess import cupy_kernel_probe, run_python_script
+from simforge_gpu.suggestions.merge import merge_review_into_plan
+from simforge_gpu.suggestions.review import (
+    SuggestionReview,
+    review_model_suggestion_payload,
+)
+from simforge_gpu.tracing.agent_trace import build_agent_trace, write_agent_trace
 from simforge_gpu.transpilers.numpy_to_cupy import RewriteResult, rewrite_supported_numpy_calls
 
 
@@ -62,6 +69,17 @@ class ReportResult:
 
 
 @dataclass(frozen=True)
+class SuggestionReviewResult:
+    output_dir: Path
+    reports_dir: Path
+    review: SuggestionReview
+    model_suggestion_path: Path
+    review_json_path: Path
+    review_markdown_path: Path
+    message: str
+
+
+@dataclass(frozen=True)
 class DemoStatusRow:
     name: str
     backend: str
@@ -87,6 +105,28 @@ def analyze_file(input_path: str | Path, output_dir: str | Path | None = None) -
     return AnalyzeResult(output_dir=root, reports_dir=reports_dir, ir=ir, ir_path=ir_path)
 
 
+def review_suggestion_file(
+    suggestion_path: str | Path,
+    source_path: str | Path,
+    output_dir: str | Path | None = None,
+    target_backend: str = "cupy",
+) -> SuggestionReviewResult:
+    source_file = Path(source_path)
+    source = _read_python_source(source_file)
+    unsupported = tuple(detect_unsupported(source, target_backend=target_backend))
+    root = _resolve_output_dir(source_file, output_dir, target_backend=target_backend)
+    reports_dir = root / "reports"
+    reports_dir.mkdir(parents=True, exist_ok=True)
+
+    return _review_suggestion_for_reports(
+        suggestion_path=Path(suggestion_path),
+        source_path=source_file,
+        reports_dir=reports_dir,
+        target_backend=target_backend,
+        deterministic_unsupported=unsupported,
+    )
+
+
 def convert_file(
     input_path: str | Path,
     target_backend: str = "cupy",
@@ -97,6 +137,7 @@ def convert_file(
     benchmark_repeat: int = 1,
     benchmark_warmup: int = 0,
     dry_run: bool = False,
+    suggestion_path: str | Path | None = None,
 ) -> ConvertResult:
     source_path = Path(input_path)
     source = _read_python_source(source_path)
@@ -109,7 +150,61 @@ def convert_file(
     generated_dir = root / "generated"
     reports_dir.mkdir(parents=True, exist_ok=True)
     generated_dir.mkdir(parents=True, exist_ok=True)
-    (reports_dir / "analysis_ir.json").write_text(ir.to_json(), encoding="utf-8")
+    analysis_ir_path = reports_dir / "analysis_ir.json"
+    analysis_ir_path.write_text(ir.to_json(), encoding="utf-8")
+
+    suggestion_review: SuggestionReview | None = None
+    model_suggestion_path: Path | None = None
+    suggestion_review_json_path = reports_dir / "suggestion_review.json"
+    suggestion_review_markdown_path = reports_dir / "suggestion_review.md"
+    agent_trace_path = reports_dir / "agent_trace.json"
+    if suggestion_path is not None:
+        suggestion_result = _review_suggestion_for_reports(
+            suggestion_path=Path(suggestion_path),
+            source_path=source_path,
+            reports_dir=reports_dir,
+            target_backend=target_backend,
+            deterministic_unsupported=tuple(unsupported),
+        )
+        suggestion_review = suggestion_result.review
+        model_suggestion_path = suggestion_result.model_suggestion_path
+        if suggestion_review.is_rejected:
+            trace = build_agent_trace(
+                source_file=source_path,
+                target_backend=target_backend,
+                model_suggestion_path=_relative_to(root, model_suggestion_path),
+                suggestion_review_path=_relative_to(root, suggestion_review_json_path),
+                review=suggestion_review,
+                harness_gates=(
+                    _gate("source_intake", "PASSED", _display_path(source_path)),
+                    _gate("static_analysis", "PASSED", _relative_to(root, analysis_ir_path)),
+                    _gate(
+                        "suggestion_review",
+                        suggestion_review.status,
+                        _relative_to(root, suggestion_review_json_path),
+                    ),
+                ),
+                artifacts={
+                    "analysis_ir": _relative_to(root, analysis_ir_path),
+                    "model_suggestion": _relative_to(root, model_suggestion_path),
+                    "suggestion_review": _relative_to(root, suggestion_review_json_path),
+                },
+            )
+            write_agent_trace(agent_trace_path, trace)
+            return ConvertResult(
+                exit_code=2,
+                output_dir=root,
+                reports_dir=reports_dir,
+                generated_path=None,
+                plan_path=reports_dir / "conversion_plan.json",
+                unsupported_report_path=reports_dir / "unsupported_report.md",
+                explanation_report_path=reports_dir / "explanation_report.md",
+                validation_report_path=reports_dir / "validation_report.md",
+                benchmark_report_path=reports_dir / "benchmark_report.md",
+                syntax_report_path=reports_dir / "syntax_report.md",
+                quality_report_path=reports_dir / "quality_report.md",
+                message=f"Suggestion review rejected: {suggestion_review_json_path}",
+            )
 
     backend = get_backend(target_backend)
     rewrite = RewriteResult(source=source, unsupported_features=(), changes=())
@@ -118,6 +213,8 @@ def convert_file(
     if backend.is_implemented:
         rewrite = rewrite_supported_numpy_calls(source)
         unsupported.extend(rewrite.unsupported_features)
+        if suggestion_review is not None:
+            unsupported.extend(_review_unsupported_for_plan(suggestion_review))
         if not dry_run:
             generated_source = _add_generation_header(
                 rewrite.source, partial=bool(unsupported)
@@ -133,6 +230,8 @@ def convert_file(
         changes=rewrite.changes,
         unsupported_features=tuple(unsupported),
     )
+    if suggestion_review is not None:
+        plan = merge_review_into_plan(plan, suggestion_review)
 
     plan_path = reports_dir / "conversion_plan.json"
     unsupported_report_path = reports_dir / "unsupported_report.md"
@@ -176,12 +275,70 @@ def convert_file(
         unsupported_count=len(plan.unsupported_features),
         validation_result=validation_result,
         benchmark_result=benchmark_result,
+        suggestion_review_status=(
+            suggestion_review.status if suggestion_review is not None else None
+        ),
     )
     quality_report_path.write_text(render_quality_report(quality_result), encoding="utf-8")
     explanation_report_path.write_text(
-        _render_explanation(plan, generated_path, validation_result, benchmark_result),
+        _render_explanation(
+            plan,
+            generated_path,
+            validation_result,
+            benchmark_result,
+            suggestion_review=suggestion_review,
+        ),
         encoding="utf-8",
     )
+
+    if suggestion_review is not None and model_suggestion_path is not None:
+        trace = build_agent_trace(
+            source_file=source_path,
+            target_backend=target_backend,
+            model_suggestion_path=_relative_to(root, model_suggestion_path),
+            suggestion_review_path=_relative_to(root, suggestion_review_json_path),
+            review=suggestion_review,
+            harness_gates=(
+                _gate("source_intake", "PASSED", _display_path(source_path)),
+                _gate("static_analysis", "PASSED", _relative_to(root, analysis_ir_path)),
+                _gate(
+                    "backend_policy",
+                    "PASSED" if backend.is_implemented else "REJECTED",
+                    _relative_to(root, plan_path),
+                ),
+                _gate(
+                    "suggestion_review",
+                    suggestion_review.status,
+                    _relative_to(root, suggestion_review_json_path),
+                ),
+                _gate("syntax", str(syntax_result["status"]), _relative_to(root, syntax_report_path)),
+                _gate(
+                    "validation",
+                    str(validation_result["status"]),
+                    _relative_to(root, validation_report_path),
+                ),
+                _gate(
+                    "benchmark",
+                    str(benchmark_result["status"]),
+                    _relative_to(root, benchmark_report_path),
+                ),
+            ),
+            artifacts=_agent_trace_artifacts(
+                root=root,
+                analysis_ir_path=analysis_ir_path,
+                plan_path=plan_path,
+                unsupported_report_path=unsupported_report_path,
+                explanation_report_path=explanation_report_path,
+                validation_report_path=validation_report_path,
+                benchmark_report_path=benchmark_report_path,
+                syntax_report_path=syntax_report_path,
+                quality_report_path=quality_report_path,
+                model_suggestion_path=model_suggestion_path,
+                suggestion_review_path=suggestion_review_json_path,
+                generated_path=generated_path,
+            ),
+        )
+        write_agent_trace(agent_trace_path, trace)
 
     if not backend.is_implemented:
         return ConvertResult(
@@ -234,6 +391,39 @@ def run_demo(name: str, output_dir: str | Path | None = None) -> ReportResult:
     )
     report = project_report(root)
     return ReportResult(output_path=root, message=f"Demo project: {root}\n\n{report}")
+
+
+def _review_suggestion_for_reports(
+    suggestion_path: Path,
+    source_path: Path,
+    reports_dir: Path,
+    target_backend: str,
+    deterministic_unsupported: tuple[UnsupportedFeature, ...],
+) -> SuggestionReviewResult:
+    _assert_existing_file(suggestion_path, "Model suggestion file")
+    payload = suggestion_path.read_text(encoding="utf-8")
+    model_suggestion_path = reports_dir / "model_suggestion.json"
+    model_suggestion_path.write_text(payload, encoding="utf-8")
+    review = review_model_suggestion_payload(
+        payload,
+        suggestion_file=Path(_relative_to(reports_dir.parent, model_suggestion_path)),
+        source_file=source_path,
+        target_backend=target_backend,
+        deterministic_unsupported=deterministic_unsupported,
+    )
+    review_json_path = reports_dir / "suggestion_review.json"
+    review_markdown_path = reports_dir / "suggestion_review.md"
+    review_json_path.write_text(review.to_json(), encoding="utf-8")
+    review_markdown_path.write_text(render_suggestion_review_report(review), encoding="utf-8")
+    return SuggestionReviewResult(
+        output_dir=reports_dir.parent,
+        reports_dir=reports_dir,
+        review=review,
+        model_suggestion_path=model_suggestion_path,
+        review_json_path=review_json_path,
+        review_markdown_path=review_markdown_path,
+        message=f"Suggestion review: {review.status}",
+    )
 
 
 def project_report(project_dir: str | Path) -> str:
@@ -483,6 +673,14 @@ def inspect_project_status(project_dir: str | Path) -> dict[str, object]:
         project / "runs" / "validation.json",
         project / "runs" / "benchmark.json",
     ]
+    advisory_artifact_paths = [
+        reports / "model_suggestion.json",
+        reports / "suggestion_review.json",
+        reports / "suggestion_review.md",
+        reports / "agent_trace.json",
+    ]
+    if any(artifact.exists() for artifact in advisory_artifact_paths):
+        artifact_paths.extend(advisory_artifact_paths)
     for artifact in artifact_paths:
         status = "present" if artifact.exists() else "missing"
         try:
@@ -544,6 +742,14 @@ def check_project_artifacts(project_dir: str | Path) -> dict[str, object]:
         )
         if not generated_present:
             required.append("generated/*.py")
+    advisory_required = [
+        "reports/model_suggestion.json",
+        "reports/suggestion_review.json",
+        "reports/suggestion_review.md",
+        "reports/agent_trace.json",
+    ]
+    if any(artifacts.get(artifact) == "present" for artifact in advisory_required):
+        required.extend(advisory_required)
     missing = [
         artifact
         for artifact in required
@@ -766,6 +972,70 @@ def _default_run_path(generated_path: Path, filename: str) -> Path:
 def _write_run_artifact(path: Path, payload: dict[str, object]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(stable_json(payload), encoding="utf-8")
+
+
+def _review_unsupported_for_plan(review: SuggestionReview) -> list[UnsupportedFeature]:
+    features: list[UnsupportedFeature] = []
+    for feature in review.unsupported_features:
+        source = str(feature.get("source", "model_hypothesis"))
+        if source == "static_detector":
+            continue
+        features.append(
+            UnsupportedFeature(
+                code=str(feature.get("code", "model_hypothesis")),
+                reason=str(feature.get("reason", "")),
+                action=str(feature.get("action", "Review this model advisory item.")),
+                category=str(feature.get("category", "model_hypothesis")),
+                source=source,
+            )
+        )
+    return features
+
+
+def _gate(name: str, status: str, artifact: str) -> dict[str, object]:
+    return {
+        "name": name,
+        "status": status,
+        "artifact": artifact,
+    }
+
+
+def _agent_trace_artifacts(
+    root: Path,
+    analysis_ir_path: Path,
+    plan_path: Path,
+    unsupported_report_path: Path,
+    explanation_report_path: Path,
+    validation_report_path: Path,
+    benchmark_report_path: Path,
+    syntax_report_path: Path,
+    quality_report_path: Path,
+    model_suggestion_path: Path,
+    suggestion_review_path: Path,
+    generated_path: Path | None,
+) -> dict[str, str]:
+    artifacts = {
+        "analysis_ir": _relative_to(root, analysis_ir_path),
+        "conversion_plan": _relative_to(root, plan_path),
+        "unsupported_report": _relative_to(root, unsupported_report_path),
+        "explanation_report": _relative_to(root, explanation_report_path),
+        "validation_report": _relative_to(root, validation_report_path),
+        "benchmark_report": _relative_to(root, benchmark_report_path),
+        "syntax_report": _relative_to(root, syntax_report_path),
+        "quality_report": _relative_to(root, quality_report_path),
+        "model_suggestion": _relative_to(root, model_suggestion_path),
+        "suggestion_review": _relative_to(root, suggestion_review_path),
+    }
+    if generated_path is not None:
+        artifacts["generated_source"] = _relative_to(root, generated_path)
+    return artifacts
+
+
+def _relative_to(root: Path, path: Path) -> str:
+    try:
+        return path.relative_to(root).as_posix()
+    except ValueError:
+        return path.as_posix()
 
 
 def _resolve_output_dir(
@@ -1072,6 +1342,7 @@ def _quality_result(
     unsupported_count: int,
     validation_result: dict[str, object],
     benchmark_result: dict[str, object],
+    suggestion_review_status: str | None = None,
 ) -> dict[str, object]:
     syntax_status = str(syntax_result.get("status", "UNKNOWN"))
     validation_status = str(validation_result.get("status", "UNKNOWN"))
@@ -1091,7 +1362,7 @@ def _quality_result(
         notes.append("At least one execution gate failed.")
     if unsupported_count:
         notes.append("Unsupported features remain; review unsupported_report.md before execution.")
-    return {
+    result: dict[str, object] = {
         "quality_gate": quality_gate,
         "syntax_status": syntax_status,
         "unsupported_count": unsupported_count,
@@ -1099,6 +1370,9 @@ def _quality_result(
         "benchmark_status": benchmark_status,
         "notes": notes,
     }
+    if suggestion_review_status is not None:
+        result["suggestion_review_status"] = suggestion_review_status
+    return result
 
 
 def _render_explanation(
@@ -1106,6 +1380,7 @@ def _render_explanation(
     generated_path: Path | None,
     validation_result: dict[str, object],
     benchmark_result: dict[str, object],
+    suggestion_review: SuggestionReview | None = None,
 ) -> str:
     artifacts = [
         "conversion_plan.json",
@@ -1138,6 +1413,31 @@ def _render_explanation(
         "- Tests and reports decide whether a conversion is usable.",
         "",
     ]
+    if suggestion_review is not None:
+        details.extend(
+            [
+                "## Model Advisory Input",
+                "",
+                f"Suggestion review status: {suggestion_review.status}",
+                "Accepted fields:",
+            ]
+        )
+        if suggestion_review.accepted_fields:
+            details.extend(f"- {entry.field}" for entry in suggestion_review.accepted_fields)
+        else:
+            details.append("- none")
+        details.extend(["", "Rejected fields:"])
+        if suggestion_review.rejected_fields:
+            details.extend(f"- {entry.field}" for entry in suggestion_review.rejected_fields)
+        else:
+            details.append("- none")
+        details.extend(
+            [
+                "",
+                "Note: Model advisory input is not treated as a trusted transformation.",
+                "",
+            ]
+        )
     return report + "\n".join(details)
 
 

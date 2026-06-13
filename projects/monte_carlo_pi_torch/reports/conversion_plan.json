@@ -43,7 +43,8 @@
       "action": "Use --target cupy for the current supported backend.",
       "category": "backend_not_implemented",
       "code": "--target torch",
-      "reason": "TorchBackend is planned but not implemented in the MVP.\nUse --target cupy for the current supported backend."
+      "reason": "TorchBackend is planned but not implemented in the MVP.\nUse --target cupy for the current supported backend.",
+      "source": "backend_policy"
     }
   ],
   "validation_strategy": "stochastic"

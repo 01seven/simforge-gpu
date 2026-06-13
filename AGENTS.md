@@ -5,14 +5,15 @@ This file is the repository-level operating guide for AI coding agents working o
 
 ## Project Positioning
 
-`SimForge GPU` is a correctness-first, AI-agent-assisted workflow and Python toolkit
-for migrating NumPy-based statistical simulation code from CPU to GPU, with
-conversion plans, validation reports, benchmarks, and explanations.
+`SimForge GPU` is a local CPU-to-GPU migration harness for AI coding agents and
+a correctness-first Python toolkit for migrating NumPy-based statistical
+simulation code from CPU to GPU, with conversion plans, validation reports,
+benchmarks, and explanations.
 
 Core rule:
 
 ```text
-LLM suggests. Rules transform. Tests decide. Reports explain.
+Model proposes. Harness constrains. Tools execute. Tests decide. Reports explain.
 ```
 
 ## MVP Boundary
@@ -25,6 +26,7 @@ The MVP supports only:
 - Rule-based NumPy to CuPy conversion planning and later transformation.
 - Structured conversion plans, validation reports, benchmark reports,
   explanation reports, and unsupported reports.
+- Local review of external-agent `model_suggestion.json` artifacts.
 - No-GPU development and CI for analyzer, planner, transpiler, reporter, and
   backend-selection behavior.
 
@@ -42,6 +44,8 @@ Do not implement or imply support for:
   arbitrary third-party package migration.
 - Automatic mathematical proof of equivalence.
 - Fake speedup numbers or GPU benchmark claims without measurement.
+- Direct OpenAI or other model API calls from `simforge`.
+- API key management or hosted model orchestration.
 
 ## Backend Strategy
 
@@ -67,7 +71,9 @@ message and include it in the unsupported report.
 - Every conversion must have a conversion plan.
 - Generated code must be syntax checked before it is presented as runnable.
 - Unsupported features must be explicit; never silently skip unsafe code.
-- LLM output is advisory and must not be the sole trusted source.
+- Model output is advisory and must not be the sole trusted source.
+- `model_suggestion.json` is external opinion; `conversion_plan.json` is the
+  harness-accepted plan.
 - Reports must explain risks, unsupported features, and validation status.
 
 ## Validation First

@@ -42,6 +42,11 @@ Backend
 Backends must be metadata-driven enough that analyzer, planner, and tests can run
 without importing actual GPU libraries.
 
+External model suggestions cannot override backend registry status. If a model
+suggests `torch`, `jax`, `numba`, or `cudf`, the harness may record that advice
+as rejected or unsupported advisory input, but it must not generate code for
+those planned-only backends.
+
 ## Backend Status
 
 | Backend | MVP status | Behavior |
@@ -69,3 +74,7 @@ Use --target cupy for the current supported backend.
 
 The same reason must appear in the unsupported report. The command must not
 produce fake torch code.
+
+The same policy applies when the backend name appears in `model_suggestion.json`.
+Model advice is reviewed by the harness; it is never treated as evidence that a
+planned backend has become implemented.

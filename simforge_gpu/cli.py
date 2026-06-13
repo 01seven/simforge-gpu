@@ -22,6 +22,7 @@ from simforge_gpu.pipeline import (
     inspect_project,
     inspect_project_status,
     project_report,
+    review_suggestion_file,
     run_demo,
     validate_files,
 )
@@ -46,6 +47,15 @@ def build_parser() -> argparse.ArgumentParser:
     convert.add_argument("--repeat", type=int, default=1)
     convert.add_argument("--warmup", type=int, default=0)
     convert.add_argument("--dry-run", action="store_true")
+    convert.add_argument("--suggestion")
+
+    review_suggestion = subparsers.add_parser(
+        "review-suggestion", help="Review an external model suggestion artifact."
+    )
+    review_suggestion.add_argument("suggestion")
+    review_suggestion.add_argument("--source", required=True)
+    review_suggestion.add_argument("--target", default="cupy")
+    review_suggestion.add_argument("--output-dir")
 
     validate = subparsers.add_parser("validate", help="Validate original and generated code.")
     validate.add_argument("original")
@@ -125,6 +135,7 @@ def _handle_convert(args: argparse.Namespace) -> int:
             benchmark_repeat=args.repeat,
             benchmark_warmup=args.warmup,
             dry_run=args.dry_run,
+            suggestion_path=args.suggestion,
         )
     except ValueError as exc:
         print(str(exc), file=sys.stderr)
@@ -135,7 +146,8 @@ def _handle_convert(args: argparse.Namespace) -> int:
 
     if result.exit_code != 0:
         print(result.message, file=sys.stderr)
-        print(f"Unsupported report: {result.unsupported_report_path}", file=sys.stderr)
+        if result.unsupported_report_path.exists():
+            print(f"Unsupported report: {result.unsupported_report_path}", file=sys.stderr)
         return result.exit_code
 
     print(result.message)
@@ -145,6 +157,23 @@ def _handle_convert(args: argparse.Namespace) -> int:
     print(f"Benchmark report: {result.benchmark_report_path}")
     print(f"Explanation report: {result.explanation_report_path}")
     return 0
+
+
+def _handle_review_suggestion(args: argparse.Namespace) -> int:
+    try:
+        result = review_suggestion_file(
+            args.suggestion,
+            source_path=args.source,
+            output_dir=args.output_dir,
+            target_backend=args.target,
+        )
+    except (ValueError, FileNotFoundError) as exc:
+        print(str(exc), file=sys.stderr)
+        return 2
+    print(result.message)
+    print(f"Suggestion review JSON: {result.review_json_path}")
+    print(f"Suggestion review report: {result.review_markdown_path}")
+    return 2 if result.review.is_rejected else 0
 
 
 def _handle_analyze(args: argparse.Namespace) -> int:
@@ -353,6 +382,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _handle_analyze(args)
     if args.command == "convert":
         return _handle_convert(args)
+    if args.command == "review-suggestion":
+        return _handle_review_suggestion(args)
     if args.command == "explain":
         return _handle_explain(args)
     if args.command == "validate":

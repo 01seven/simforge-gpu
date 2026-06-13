@@ -9,6 +9,8 @@
 - Basic GPU suitability analysis.
 - Lightweight IR generation.
 - Conversion plan generation.
+- Local review of external-agent `model_suggestion.json` artifacts.
+- Controlled merge of accepted advisory fields into `conversion_plan.json`.
 - Explicit unsupported reports.
 - Conservative NumPy to CuPy mapping.
 - No-GPU tests for planning and reporting behavior.
@@ -29,6 +31,10 @@
 - Sequential simulations with iteration-to-iteration dependencies that cannot
   be safely parallelized.
 - Real TorchBackend, JAX, Numba-CUDA, or cuDF conversion.
+- Direct OpenAI or other model API calls from the `simforge` CLI.
+- API key management or hosted model orchestration.
+- LLM-generated code paths that bypass deterministic planner, transpiler,
+  syntax, validation, benchmark, and reporting gates.
 
 ## First Supported NumPy APIs
 
@@ -74,4 +80,22 @@ The tool must produce an unsupported report entry when it detects:
 - Output variables that cannot be identified.
 - A conversion that would require pretending Torch, JAX, Numba-CUDA, or cuDF
   support exists.
+- A model suggestion that names an unknown backend or tries to treat a
+  planned-only backend as implemented.
 - A likely GPU memory explosion from unsafe full vectorization.
+
+## Model Suggestion Boundary
+
+`model_suggestion.json` is external model opinion. It may provide source intent,
+risk notes, unsupported hypotheses, output semantics, and validation advice.
+The harness may accept those fields only as source-labeled advisory metadata.
+
+`conversion_plan.json` remains the formal accepted plan. Model suggestions must
+not:
+
+- replace the target backend;
+- change backend implementation status;
+- remove rule-detected unsupported features;
+- mark validation or benchmark as passed;
+- add speedup claims;
+- change syntax or quality gate status.

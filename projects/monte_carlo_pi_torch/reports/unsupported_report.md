@@ -4,6 +4,8 @@
 
 Category: backend_not_implemented
 
+Source: backend_policy
+
 Reason: TorchBackend is planned but not implemented in the MVP.
 Use --target cupy for the current supported backend.
 

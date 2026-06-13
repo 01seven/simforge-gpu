@@ -13,6 +13,7 @@ class UnsupportedFeature:
     reason: str
     action: str
     category: str = "unsupported"
+    source: str = "static_detector"
 
     def to_dict(self) -> dict[str, str]:
         return asdict(self)
