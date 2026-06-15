@@ -9,6 +9,12 @@ from collections.abc import Sequence
 
 from simforge_gpu.backends.cupy import SUPPORTED_PATTERNS
 from simforge_gpu.backends.registry import get_backend, list_backends
+from simforge_gpu.harness.workflow import (
+    collect_agent_result,
+    create_agent_task,
+    inspect_project as inspect_v2_project,
+    plan_project,
+)
 from simforge_gpu.pipeline import (
     analyze_file,
     benchmark_files,
@@ -112,6 +118,36 @@ def build_parser() -> argparse.ArgumentParser:
         "list-backends", help="List backend implementation status."
     )
     list_backends_parser.add_argument("--json", action="store_true", dest="json_output")
+
+    inspect_v2 = subparsers.add_parser(
+        "inspect", help="Inspect a local R/Python project for v2 agent migration."
+    )
+    inspect_v2.add_argument("project")
+    inspect_v2.add_argument("--language", default="auto", choices=("auto", "python", "r"))
+    inspect_v2.add_argument("--json", action="store_true", dest="json_output")
+
+    plan_v2 = subparsers.add_parser(
+        "plan", help="Generate a v2 external-agent migration plan."
+    )
+    plan_v2.add_argument("project")
+    plan_v2.add_argument("--language", default="auto", choices=("auto", "python", "r"))
+    plan_v2.add_argument("--target", default="py-torch")
+    plan_v2.add_argument("--json", action="store_true", dest="json_output")
+
+    task_v2 = subparsers.add_parser(
+        "task", help="Generate task artifacts for an external coding agent."
+    )
+    task_v2.add_argument("project")
+    task_v2.add_argument("--agent", default="manual", choices=("manual", "codex", "cursor"))
+    task_v2.add_argument("--target", default="py-torch")
+    task_v2.add_argument("--language", default="auto", choices=("auto", "python", "r"))
+    task_v2.add_argument("--json", action="store_true", dest="json_output")
+
+    collect_v2 = subparsers.add_parser(
+        "collect", help="Collect external-agent output and write an agent trace."
+    )
+    collect_v2.add_argument("project")
+    collect_v2.add_argument("--json", action="store_true", dest="json_output")
     return parser
 
 
@@ -366,6 +402,55 @@ def _handle_list_patterns(args: argparse.Namespace) -> int:
     return 0
 
 
+def _handle_v2_result(result, json_output: bool) -> int:
+    if json_output:
+        print(json.dumps(result.payload, indent=2, sort_keys=True))
+    else:
+        print(result.message)
+    return 0
+
+
+def _handle_inspect_v2(args: argparse.Namespace) -> int:
+    try:
+        result = inspect_v2_project(args.project, language=args.language)
+    except (ValueError, FileNotFoundError) as exc:
+        print(str(exc), file=sys.stderr)
+        return 2
+    return _handle_v2_result(result, args.json_output)
+
+
+def _handle_plan_v2(args: argparse.Namespace) -> int:
+    try:
+        result = plan_project(args.project, language=args.language, target=args.target)
+    except (ValueError, FileNotFoundError) as exc:
+        print(str(exc), file=sys.stderr)
+        return 2
+    return _handle_v2_result(result, args.json_output)
+
+
+def _handle_task_v2(args: argparse.Namespace) -> int:
+    try:
+        result = create_agent_task(
+            args.project,
+            agent=args.agent,
+            target=args.target,
+            language=args.language,
+        )
+    except (ValueError, FileNotFoundError) as exc:
+        print(str(exc), file=sys.stderr)
+        return 2
+    return _handle_v2_result(result, args.json_output)
+
+
+def _handle_collect_v2(args: argparse.Namespace) -> int:
+    try:
+        result = collect_agent_result(args.project)
+    except (ValueError, FileNotFoundError) as exc:
+        print(str(exc), file=sys.stderr)
+        return 2
+    return _handle_v2_result(result, args.json_output)
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
@@ -404,6 +489,14 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _handle_check_artifacts(args)
     if args.command == "doctor":
         return _handle_doctor(args)
+    if args.command == "inspect":
+        return _handle_inspect_v2(args)
+    if args.command == "plan":
+        return _handle_plan_v2(args)
+    if args.command == "task":
+        return _handle_task_v2(args)
+    if args.command == "collect":
+        return _handle_collect_v2(args)
 
     return _print_skeleton(args.command)
 

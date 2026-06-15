@@ -1,104 +1,72 @@
 # Roadmap
 
-## MVP
+## Completed Legacy MVP
 
-- Complete: repository scaffold.
-- Complete: agent workflow guide.
-- Complete: Python package skeleton and local install metadata.
-- Complete: CLI for `analyze`, `convert`, `list-patterns`, and `list-backends`.
-- Complete: backend registry.
-- Complete: implemented CuPyBackend metadata and conservative mapping.
-- Complete: planned-only stubs for Torch, JAX, Numba-CUDA, and cuDF.
-- Complete: AST analyzer.
-- Complete: lightweight IR.
-- Complete: basic GPU suitability metadata.
-- Complete: conversion plan schema.
-- Complete: unsupported detector and report.
-- Complete: Markdown/JSON report generation.
-- Complete: no-GPU test suite.
-- Complete: Monte Carlo pi vertical slice with generated CuPy source and skipped
-  validation/benchmark reports.
-- Complete: standalone `explain`, `validate`, `benchmark`, and `init-example`
-  CLI polish for no-GPU demo use.
-- Complete: conservative unsupported detection for class-heavy code,
-  side-effect-heavy loops, sequential dependency loops, and unsupported NumPy
-  APIs.
-- Complete: no-GPU conversion artifact coverage for all first-batch examples,
-  with conservative partial-conversion import handling.
-- Complete: golden generated-source coverage for all first-batch examples.
-- Complete: report-driven `demo-status` CLI for generated project summaries.
-- Complete: report-driven `inspect-project` CLI for single-project drill-downs.
-- Complete: no-GPU demo walkthrough in `docs/DEMO.md`.
-- Complete: no-GPU `doctor` CLI for local environment inspection.
-- Complete: JSON status output for `doctor`, `demo-status`, and
-  `inspect-project`.
-- Complete: JSON discovery output for `list-backends` and `list-patterns`.
-- Complete: static `syntax_report.md` and `quality_report.md` artifacts.
-- Complete: `check-artifacts` CLI for project artifact completeness.
-- Complete: optional CuPy/CUDA validation and benchmark execution for generated
-  Monte Carlo pi code.
-- Complete: GPU-marked tests for real validation and benchmark paths.
-- Complete: configurable scalar validation tolerance.
-- Complete: repeated benchmark measurements with warmup and median/min/mean
-  runtime summaries.
-- Complete: real GPU validation coverage for `normal_mean_probability` and
-  `random_walk`.
-- Complete: structured `runs/validation.json` and `runs/benchmark.json`
-  artifacts for standalone and convert-triggered execution paths.
-- Complete: repeated scalar stochastic validation with max/mean absolute
-  difference summaries.
-- Complete: simple numeric JSON/list output validation for generated CuPy
-  scripts.
-- Complete: benchmark trust indicators for skipped and successful benchmark
-  paths.
-- Complete: release demo commands, including dry-run conversion, project
-  summary reports, and one-command demo workflow.
+- Repository scaffold, AGENTS.md, workflow docs, examples, and tests.
+- CLI for `analyze`, `convert`, `validate`, `benchmark`, `explain`,
+  `review-suggestion`, `init-example`, `run-demo`, `report`, `demo-status`,
+  `inspect-project`, `check-artifacts`, `doctor`, `list-patterns`, and
+  `list-backends`.
+- Backend registry for legacy CuPy and planned Torch/JAX/Numba-CUDA/cuDF.
+- Python AST analyzer, lightweight IR, unsupported detector, conversion plan,
+  report generation, and conservative NumPy-to-CuPy rewrite.
+- Optional CuPy/CUDA validation and benchmark execution when available.
+- No-GPU skipped validation and benchmark reports with trust indicators.
+- Structured `runs/validation.json` and `runs/benchmark.json` for the legacy
+  deterministic path.
+- Release demo commands, dry-run conversion, project summary reports, and
+  no-GPU CI command coverage.
 
-## v0.2
+## v2 Pivot Milestone
 
-- Broader real GPU validation beyond scalar and simple JSON/list outputs.
-- Better loop and output detection.
-- More example fixtures.
-- Richer validation report rendering.
-- Stable CLI artifact layout.
+The v2 direction repositions SimForge GPU as a torch-first external-agent
+harness while preserving the legacy CuPy MVP.
 
-## v0.3
+Implemented in the first v2 pass:
 
-- Safer vectorization strategies.
-- Memory suitability analysis.
-- More statistical validation checks.
-- Transfer-overhead accounting.
-- In-process benchmark execution with transfer-overhead accounting.
+- `simforge inspect` for lightweight Python and R project inspection.
+- `simforge plan` for v2 migration plans.
+- `simforge task` for manual/Codex/Cursor-ready external-agent task artifacts.
+- `simforge collect` for pending or collected agent traces.
+- `py-torch` and `r-torch` as `primary_agent_target`.
+- `cupy` as `legacy_deterministic_target`.
+- `jax`, `numba-cuda`, and `cudf` as `planned_only` v2 targets.
+- Python and R torch-target examples for task generation.
+- No-GPU tests for the v2 workflow.
 
-## TorchBackend
+## Near-Term v2 Work
 
-TorchBackend remains planned until the project can provide trustworthy tensor
-mapping, validation, and unsupported behavior. It should not be implemented by
-renaming NumPy calls to torch calls without semantic review.
+- Add richer project-level validation plans.
+- Add user-provided candidate discovery in `workspace/`.
+- Connect v2 `validate` and `benchmark` to project directories, not only
+  original/generated file pairs.
+- Add audit report rendering for v2 traces.
+- Expand Python and R adapter heuristics while keeping no-execution behavior.
 
-## R Support
+## Later Agent Automation
 
-Future R support may parse R simulation code into an intermediate representation
-or a Python NumPy-like representation before targeting GPU backends. It is not in
-the MVP.
+- Optional local launch integration for Codex, Claude Code, Cursor, or similar
+  tools.
+- Strict sandboxing and explicit user consent before automated agent execution.
+- Better patch ingestion and conflict reporting.
+- Agent run provenance and replay metadata.
 
-## JAX
+## Later Torch Work
 
-JAX may be useful for functional, compiled numerical workloads. It requires a
-separate backend strategy and is roadmap only.
+- Real PyTorch examples with manually authored candidates.
+- Validation patterns for stochastic tensor simulations.
+- GPU memory analysis and transfer-overhead reporting.
+- Guidance for `torch.compile`, mixed precision, and device placement.
 
-## Numba-CUDA
+## Later R Work
 
-Numba-CUDA may help when simulations need custom kernels. It is a deeper
-compiler-style path and is roadmap only.
+- Real R torch examples with manually authored candidates.
+- Stronger R project inspection.
+- Optional parser-backed R analysis if textual inspection becomes insufficient.
 
-## cuDF
+## Roadmap Targets
 
-cuDF may be useful for dataframe-heavy GPU workflows. pandas-heavy conversion is
-outside the MVP and belongs to future work.
+JAX, Numba-CUDA, and cuDF remain roadmap-only. They should not produce generated
+code until the harness has target-specific planning, validation, unsupported
+handling, and benchmark evidence.
 
-## VS Code And Agent Workflow Integration
-
-Future work may include editor tasks, agent prompts, project templates, and
-workflow commands for tools such as Codex, Claude Code, Cursor, Kiro, and VS Code
-Copilot.

@@ -1,0 +1,2 @@
+"""External-agent protocol helpers."""
+

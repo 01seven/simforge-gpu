@@ -1,5 +1,25 @@
 # GPU-Capable MVP Demo
 
+## v2 Agent Harness Path
+
+The v2 path generates inspection, planning, and external-agent task artifacts.
+It does not call a model API or generate torch code automatically.
+
+```bash
+simforge inspect examples/python_monte_carlo_torch --language python
+simforge plan examples/python_monte_carlo_torch --language python --target py-torch
+simforge task examples/python_monte_carlo_torch --agent codex --target py-torch
+simforge collect examples/python_monte_carlo_torch
+
+simforge inspect examples/r_monte_carlo_torch --language r
+simforge plan examples/r_monte_carlo_torch --language r --target r-torch
+simforge task examples/r_monte_carlo_torch --agent codex --target r-torch
+simforge collect examples/r_monte_carlo_torch
+```
+
+`collect` records pending or collected agent output. It does not treat external
+agent validation or benchmark claims as harness results.
+
 This walkthrough shows the current `SimForge GPU` MVP. The core workflow still runs
 without CUDA, CuPy, or a real LLM API. When CuPy/CUDA are available, the same
 commands can execute generated CuPy code for validation and benchmark reports.
